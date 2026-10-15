@@ -189,26 +189,27 @@ After each sweep, `python analyze.py results/<sweep>.csv` writes the paired summ
 sensitivity tables; the 40 calibration images (the first 40 of iBims-1) are excluded from every S2Q, downstream and
 weight-and-activation evaluation, and GPTQ calibrates on the first 16.
 
-### Pending: per-image tables for Table 19
+### Notes
 
 `results/tables/in_text_numbers.json` lists every number quoted in the text with the value printed in the paper, and
 all 21 data tables match the paper number for number. Confidence intervals of Cliff's δ are percentile bootstrap
 intervals that resample images with replacement and keep each image's pair together (`stats.cliffs_delta_ci`, 10^4
-resamples, seed 0).
+resamples, seed 0). Every experiment that scores images ships its per-image table in `results/per_image/`, and its
+aggregate is rebuilt from that table with `--from-per-image`. Table 10 (parameter counts), Table 21 (per-model timing)
+and the per-layer sensitivity tables of Sec. 10.1 (`results/sensitivity_*_w4.csv`) have no per-image level; the S2Q
+allocations rebuild from the sensitivity tables byte for byte on a CPU (`python allocate.py --model <m>`).
 
 Table 19 uses per-tensor activation fake-quantization (`granularity: per_tensor` in `configs/wa_probe.yaml`), with
 the scale computed from each input at every forward pass; per-channel scaling (`configs/wa_probe_perchannel.yaml`) is
-a sensitivity check. `results/wa_probe.csv` is the aggregate of the original per-tensor run, and its per-image tables
-are added once both configs are rerun on a GPU. An earlier version of `fake_quant_tensor` produced NaN for an
-all-zero channel in float16, because its 1e-12 scale floor underflows; such channels now get a unit scale and
-quantize to exact zeros, and every other channel is unchanged.
+the sensitivity check reported in Sec. 11.6. In float16, a channel that is entirely zero gets a unit scale in
+`fake_quant_tensor` and quantizes to exact zeros; without this, the 1e-12 scale floor underflows and gives NaN.
 
 ## Tests
 
 | Check | Command | Expected output | Needs |
 |---|---|---|---|
 | Toolkit self-tests (alignment, metrics, statistics, fake quantization, activation quantization, GPTQ and group-wise cores) | `.venv/bin/python tests/test_selftests.py` | last line `PASS (10 self-tests)` | nothing |
-| Every derived result, table and figure rebuilt from the per-image tables and compared byte for byte | `.venv/bin/python tests/test_regenerate.py` | `results: 55/55 regenerated files identical`, `PASS` | nothing |
+| Every derived result, table and figure rebuilt from the per-image tables and compared byte for byte | `.venv/bin/python tests/test_regenerate.py` | `results: 57/57 regenerated files identical`, `PASS` | nothing |
 | Depth Boundary Error bit-identical to the official iBims-1 code | `IBIMS_EVAL_SCRIPT=<path>/evaluate_ibims_error_metrics.py .venv/bin/python tests/test_dbe_official.py` | `PASS (60 cases bit-identical)` (prints `SKIP` without the file) | the official script from the iBims-1 download, scikit-learn |
 | Shipped results and figures unchanged | `sha256sum -c checksums/results.sha256` | all `OK` | nothing |
 
@@ -217,11 +218,6 @@ are used.
 
 ## What is not included
 
-- **The per-image tables for Table 19** (pending, see above). Every other experiment ships its per-image table in
-  `results/per_image/`, and its aggregate is rebuilt from it with `--from-per-image`. The per-layer sensitivity tables
-  (`results/sensitivity_*_w4.csv`) are shipped, and the S2Q allocations rebuild from them byte for byte on a CPU
-  (`python allocate.py --model <m>`, needs the checkpoints). Table 21 is a per-model timing measurement and Table 10 a
-  parameter count, so neither has a per-image table.
 - **Datasets, the prediction cache (about 3 GB) and model checkpoints**, and the qualitative figures 1 and 4, which
   show iBims-1 imagery; `figures_qualitative.py` rebuilds them from the dataset and the cache.
 - The manuscript sources.

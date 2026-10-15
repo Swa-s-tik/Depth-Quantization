@@ -384,6 +384,16 @@ def in_text_numbers():
         put(f"sec6.2/contour_f_t{tol}_large_w{bits}_cliff", fmt(cliffs_delta(b[keep], f[keep])) + f" (p={p:.1e})",
             "results/per_image/boundary_f.csv", paper, "Sec. 6.2")
 
+    wa = pd.read_csv(R / "wa_probe.csv").set_index("config")
+    for k, m, p in [("W6 headprot, A8", "absrel", "0.62"), ("W6 uniform, A4", "absrel", "0.98"),
+                    ("W6 uniform, A16", "absrel", "0.07")]:
+        put(f"sec11.6/per_tensor/{k}/{m}_cliff", f2(wa.loc[k, f"{m}_cliff"]), "results/wa_probe.csv", p, "Sec. 11.6")
+    wc = pd.read_csv(R / "wa_probe_perchannel.csv").set_index("config")
+    for k, m, p in [("W6 headprot, A8", "absrel", "0.05"), ("W6 headprot, A8", "dbe_com", "0.02"),
+                    ("W6 headprot, A4", "absrel", "0.91"), ("W6 uniform, A4", "absrel", "0.91")]:
+        put(f"sec11.6/per_channel/{k}/{m}_cliff", f2(wc.loc[k, f"{m}_cliff"]), "results/wa_probe_perchannel.csv", p,
+            "Sec. 11.6")
+
     dpt = _summary("phase3_dpt")
     for m, pa, pf in [("dpt_large", "0.005", "0.12"), ("dpt_hybrid", "0.013", "0.13")]:
         put(f"sec11.1/{m}_w6_absrel_cliff", f3(_cliff(dpt, m, 6, "absrel")),

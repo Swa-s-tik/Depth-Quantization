@@ -149,6 +149,48 @@
   "where": "Sec. 6.2",
   "source": "results/per_image/boundary_f.csv"
  },
+ "sec11.6/per_tensor/W6 headprot, A8/absrel_cliff": {
+  "value": "0.62",
+  "paper": "0.62",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe.csv"
+ },
+ "sec11.6/per_tensor/W6 uniform, A4/absrel_cliff": {
+  "value": "0.98",
+  "paper": "0.98",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe.csv"
+ },
+ "sec11.6/per_tensor/W6 uniform, A16/absrel_cliff": {
+  "value": "0.07",
+  "paper": "0.07",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe.csv"
+ },
+ "sec11.6/per_channel/W6 headprot, A8/absrel_cliff": {
+  "value": "0.05",
+  "paper": "0.05",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe_perchannel.csv"
+ },
+ "sec11.6/per_channel/W6 headprot, A8/dbe_com_cliff": {
+  "value": "0.02",
+  "paper": "0.02",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe_perchannel.csv"
+ },
+ "sec11.6/per_channel/W6 headprot, A4/absrel_cliff": {
+  "value": "0.91",
+  "paper": "0.91",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe_perchannel.csv"
+ },
+ "sec11.6/per_channel/W6 uniform, A4/absrel_cliff": {
+  "value": "0.91",
+  "paper": "0.91",
+  "where": "Sec. 11.6",
+  "source": "results/wa_probe_perchannel.csv"
+ },
  "sec11.1/dpt_large_w6_absrel_cliff": {
   "value": "0.005",
   "paper": "0.005",
