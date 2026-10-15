@@ -175,7 +175,8 @@ for s in frozen_align boundary_f_sweep flying_sensitivity flying_on_diode analyz
 | Table 9 | `downstream_recon.yaml` | `python downstream_recon.py` | `results/downstream_recon.csv` |
 | Table 17 | `gptq_eval.yaml` | `python gptq_eval.py` (GPTQ); `python gptq_eval.py --rtn` (RTN, CPU) | `results/gptq_{eval,rtn}.csv` |
 | Table 18 | `gw_eval.yaml` | `python gw_eval.py` | `results/gw_eval.csv` |
-| Table 19 | `wa_probe.yaml` | `python w4a4_probe.py` | `results/w4a4_probe.csv` |
+| Table 19 | `wa_probe.yaml` | `python w4a4_probe.py configs/wa_probe.yaml` | `results/wa_probe.csv` |
+| Table 19, per-channel sensitivity | `wa_probe_perchannel.yaml` | `python w4a4_probe.py configs/wa_probe_perchannel.yaml` | `results/wa_probe_perchannel.csv` |
 | Table 20 | `alt_ptq.yaml` | `python alt_ptq_sweep.py` | `results/alt_ptq.csv` |
 | Table 21 | `deploy.yaml` | `python bench_deploy.py` | `results/deploy.csv` |
 | Table 22 | `int8_real.yaml` | `python predict_score_int8real.py` | `results/int8_real{,_summary}.csv` |
@@ -188,21 +189,19 @@ After each sweep, `python analyze.py results/<sweep>.csv` writes the paired summ
 sensitivity tables; the 40 calibration images (the first 40 of iBims-1) are excluded from every S2Q, downstream and
 weight-and-activation evaluation, and GPTQ calibrates on the first 16.
 
-### Known issue: activation fake-quantization (Table 19)
+### Pending: per-image tables for Table 19
 
 `results/tables/in_text_numbers.json` lists every number quoted in the text with the value printed in the paper, and
 all 21 data tables match the paper number for number. Confidence intervals of Cliff's δ are percentile bootstrap
 intervals that resample images with replacement and keep each image's pair together (`stats.cliffs_delta_ci`, 10^4
 resamples, seed 0).
 
-The activation-quantized rows of Table 19 (`results/w4a4_probe.csv`) come from the original run and ship without a
-per-image table. Rerunning `w4a4_probe.py` on a GPU with this code gives non-finite depth for every image. In half
-precision, `quant/actquant.py` applies per-channel fake-quantization, and a channel that is entirely zero gets a zero
-scale, because the 1e-12 floor of `fake_quant_tensor` underflows in float16. The weight-only rows of the same script
-are unaffected and reproduce exactly. A float32 CPU check of the two activation-quantized rows printed in Table 19
-(60 held-out images) matches the printed values with per-tensor activation scaling (AbsRel δ 0.614 and 0.979 against
-the printed 0.618 and 0.978) but not with the per-channel scaling that `quant/actquant.py` applies (0.046 and 0.916).
-This row of results is under review and may change.
+Table 19 uses per-tensor activation fake-quantization (`granularity: per_tensor` in `configs/wa_probe.yaml`), with
+the scale computed from each input at every forward pass; per-channel scaling (`configs/wa_probe_perchannel.yaml`) is
+a sensitivity check. `results/wa_probe.csv` is the aggregate of the original per-tensor run, and its per-image tables
+are added once both configs are rerun on a GPU. An earlier version of `fake_quant_tensor` produced NaN for an
+all-zero channel in float16, because its 1e-12 scale floor underflows; such channels now get a unit scale and
+quantize to exact zeros, and every other channel is unchanged.
 
 ## Tests
 
@@ -218,7 +217,7 @@ are used.
 
 ## What is not included
 
-- **A per-image table for Table 19** (see the known issue above). Every other experiment ships its per-image table in
+- **The per-image tables for Table 19** (pending, see above). Every other experiment ships its per-image table in
   `results/per_image/`, and its aggregate is rebuilt from it with `--from-per-image`. The per-layer sensitivity tables
   (`results/sensitivity_*_w4.csv`) are shipped, and the S2Q allocations rebuild from them byte for byte on a CPU
   (`python allocate.py --model <m>`, needs the checkpoints). Table 21 is a per-model timing measurement and Table 10 a

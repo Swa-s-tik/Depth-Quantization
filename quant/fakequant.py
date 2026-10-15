@@ -49,6 +49,11 @@ def fake_quant_tensor(w, bits, per_channel=True, ch_axis=0,
     else:
         wmin = w.amin(dim=dims, keepdim=True) if per_channel else w.min()
         scale = (amax - wmin).clamp_min(1e-12) / qmax
+    # The 1e-12 floor underflows to 0 in float16, so an all-zero channel (or tensor)
+    # would give 0/0 = NaN. A unit scale maps such a channel to exact zeros and leaves
+    # every channel with a positive scale bit-identical.
+    scale = torch.where(scale > 0, scale, torch.ones_like(scale))
+    if not symmetric:
         zp = torch.round(-wmin / scale)
 
     q = torch.clamp(torch.round(w / scale + (zp if not symmetric else 0.0)), qmin, qmax)
@@ -174,6 +179,11 @@ def _selftest():
     e_pc = (fake_quant_tensor(w2, 4, per_channel=True) - w2).abs().mean().item()
     e_pt = (fake_quant_tensor(w2, 4, per_channel=False) - w2).abs().mean().item()
     assert e_pc < e_pt, (e_pc, e_pt)
+    # float16 with an all-zero channel stays finite (zero channel -> exact zeros)
+    z = torch.randn(4, 8, dtype=torch.float16); z[1] = 0
+    for pc in (True, False):
+        zq = fake_quant_tensor(z, 8, per_channel=pc)
+        assert torch.isfinite(zq).all() and (zq[1] == 0).all(), pc
     # model-level: quantize a tiny net, count layers, no-op at 32b
     net = nn.Sequential(nn.Linear(8, 8), nn.ReLU(), nn.Conv2d(3, 4, 3))
     ref = net[0].weight.data.clone()

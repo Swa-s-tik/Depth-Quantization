@@ -246,7 +246,7 @@ def table_18_groupwise():
 
 
 def table_19_weight_activation():
-    w = pd.read_csv(R / "w4a4_probe.csv").set_index("config")
+    w = pd.read_csv(R / "wa_probe.csv").set_index("config")
     names = [("W6 uniform, A16", "weight-only W6 (uniform)"),
              ("W6 headprot, A8", "W6 head-protected + 8-bit activations"),
              ("W6 uniform, A4", "W6 uniform + 4-bit activations")]

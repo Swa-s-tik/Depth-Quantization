@@ -1,0 +1,17 @@
+# Sensitivity check for Table 19: the same configurations with per-channel activation
+# fake-quantization (one scale per feature channel, computed at every forward pass)
+# on top of W6 weights, on the 60 held-out iBims-1 images. GPU.
+# Command: python w4a4_probe.py configs/wa_probe_perchannel.yaml
+#          -> results/per_image/wa_probe_perchannel.csv, results/wa_probe_perchannel.csv
+name: wa_probe_perchannel
+model: dav2_large
+granularity: per_channel
+calib_n: 40               # first 40 images excluded (S2Q calibration split)
+configs:
+  - {name: "W6 headprot, A16", weights: headprot6, a_bits: 16}
+  - {name: "W6 headprot, A8",  weights: headprot6, a_bits: 8}
+  - {name: "W6 headprot, A4",  weights: headprot6, a_bits: 4}
+  - {name: "W6 uniform, A16",  weights: uniform6,  a_bits: 16}
+  - {name: "W6 uniform, A4",   weights: uniform6,  a_bits: 4}
+  - {name: "W16 (weights fp16), A4", weights: none, a_bits: 4}
+seed: 0

@@ -1,13 +1,15 @@
-"""Weight-and-activation regime (Table 19): static activation fake-quantization
-on top of W6 weights.
+"""Weight-and-activation regime (Table 19): activation fake-quantization on top of
+W6 weights.
 
 Head protection keeps the head at full-precision WEIGHTS but does nothing for
-activations. Each configuration adds per-channel activation fake-quant
-(quant/actquant.py) to every Linear/Conv2d input and is scored paired against
-FP16 on DAv2-Large, iBims-1 held-out 60 images.
-Outputs results/per_image/w4a4_probe.csv and results/w4a4_probe.csv.
-Commands: python w4a4_probe.py                   (GPU)
-          python w4a4_probe.py --from-per-image  (aggregate only, CPU)
+activations. Each configuration adds activation fake-quant (quant/actquant.py) to
+every Linear/Conv2d input, at the granularity set in the config (per_tensor for
+Table 19, per_channel as a sensitivity check), and is scored paired against FP16 on
+DAv2-Large, iBims-1 held-out 60 images.
+Outputs results/per_image/<name>.csv and results/<name>.csv (name from the config).
+Commands: python w4a4_probe.py configs/wa_probe.yaml              (GPU, Table 19)
+          python w4a4_probe.py configs/wa_probe_perchannel.yaml   (GPU, sensitivity)
+          add --from-per-image to rebuild the aggregate only (CPU)
 """
 import sys
 
@@ -26,8 +28,9 @@ from quant.fakequant import quantize_per_layer_, _QUANTIZABLE
 from quant.actquant import add_activation_fakequant, remove_activation_fakequant
 from stats import cliffs_delta, finite_pairs
 
-CFG = load_config("wa_probe")
-CACHE = CACHE_ROOT; MODEL = CFG["model"]
+_ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
+CFG = load_config(_ARGS[0] if _ARGS else "wa_probe")
+CACHE = CACHE_ROOT; MODEL = CFG["model"]; NAME = CFG["name"]
 
 
 METRICS = ["dbe_com", "flying_frac", "absrel"]
@@ -47,7 +50,7 @@ def run(name, wbits_map, abits, samples, md, xd, fp16):
     model, proc, _ = load_model(MODEL, dtype=torch.float16)
     if wbits_map:
         quantize_per_layer_(model, wbits_map, per_channel=True, default_bits=16)
-    handles = add_activation_fakequant(model, abits) if abits < 16 else []
+    handles = add_activation_fakequant(model, abits, granularity=CFG["granularity"]) if abits < 16 else []
     rows = []
     for s in samples:
         raw = infer_depth(model, proc, s.rgb, out_hw=s.gt_depth.shape)
@@ -59,7 +62,7 @@ def run(name, wbits_map, abits, samples, md, xd, fp16):
 
 
 def summarize():
-    df = pd.read_csv(PER_IMAGE / "w4a4_probe.csv", float_precision="round_trip")
+    df = pd.read_csv(PER_IMAGE / f"{NAME}.csv", float_precision="round_trip")
     rows = []
     for name, g in df.groupby("config", sort=False):
         out = {"config": name}
@@ -69,7 +72,7 @@ def summarize():
                 out[f"{k}_cliff"] = round(cliffs_delta(qv, fv), 3)
         rows.append(out)
     out = pd.DataFrame(rows)
-    out.to_csv(RESULTS / "w4a4_probe.csv", index=False)
+    out.to_csv(RESULTS / f"{NAME}.csv", index=False)
     return out
 
 
@@ -94,7 +97,7 @@ def main():
     for c in CFG["configs"]:
         per_img += run(c["name"], wmaps[c["weights"]], c["a_bits"], samples, md, xd, fp16)
         PER_IMAGE.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame(per_img).to_csv(PER_IMAGE / "w4a4_probe.csv", index=False)
+        pd.DataFrame(per_img).to_csv(PER_IMAGE / f"{NAME}.csv", index=False)
     return summarize()
 
 

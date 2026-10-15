@@ -1,8 +1,11 @@
-# Weight-and-activation regime on DAv2-Large (Table 19): static per-channel
-# activation fake-quantization on top of W6 weights, on the 60 held-out images.
-# Command: python w4a4_probe.py   -> results/w4a4_probe.csv   (GPU)
+# Weight-and-activation regime on DAv2-Large (Table 19): per-tensor activation
+# fake-quantization (one scale per input tensor, computed at every forward pass)
+# on top of W6 weights, on the 60 held-out iBims-1 images. GPU.
+# Command: python w4a4_probe.py configs/wa_probe.yaml
+#          -> results/per_image/wa_probe.csv, results/wa_probe.csv
 name: wa_probe
 model: dav2_large
+granularity: per_tensor
 calib_n: 40               # first 40 images excluded (S2Q calibration split)
 configs:
   - {name: "W6 headprot, A16", weights: headprot6, a_bits: 16}
