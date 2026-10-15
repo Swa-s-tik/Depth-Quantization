@@ -1,0 +1,38 @@
+The code in this repository is licensed under the MIT License (see LICENSE).
+
+Third-party material that this repository does not redistribute
+---------------------------------------------------------------
+Model checkpoints (downloaded from the Hugging Face Hub by transformers on first use;
+licence as stated on each model card at the time of release):
+  - depth-anything/Depth-Anything-V2-Small-hf ....... Apache-2.0
+  - depth-anything/Depth-Anything-V2-Base-hf ........ CC-BY-NC-4.0 (non-commercial)
+  - depth-anything/Depth-Anything-V2-Large-hf ....... CC-BY-NC-4.0 (non-commercial)
+  - Intel/dpt-large ................................. Apache-2.0
+  - Intel/dpt-hybrid-midas .......................... Apache-2.0
+  - Intel/zoedepth-nyu-kitti ........................ MIT
+  The Depth Anything V2 metric-depth checkpoints listed in models/registry.py are not
+  used for any result. Quantized variants of these models are derivative works under
+  the same terms as the checkpoint they come from.
+
+Datasets (obtain them from their authors; cite the original papers):
+  - iBims-1 (Koch et al., TUM; https://www.asg.ed.tum.de/lmf/ibims1/). The project page
+    states no licence; use is subject to the terms of the providers.
+  - NYU Depth V2 (Silberman et al.; https://cs.nyu.edu/~fergus/datasets/nyu_depth_v2.html).
+    The project page states no licence. The 654-image test split is read from the
+    HDF5 files of the Hugging Face dataset sayakpaul/nyu_depth_v2 (card: Apache-2.0).
+  - DIODE (Vasiljevic et al.; https://diode-dataset.org/), released under the MIT licence.
+  results/ contains per-image metric values computed on these datasets, keyed by
+  image file name; it contains no image, depth map or annotation.
+
+Algorithms reimplemented from third-party code
+  - score/boundary.py: the Depth Boundary Error follows compute_depth_boundary_error()
+    of the official iBims-1 evaluation code (Koch et al. 2018,
+    evaluate_ibims_error_metrics.py). The official file is not redistributed;
+    tests/test_dbe_official.py checks bit-identical output against it when it is
+    supplied.
+  - gptq_eval.py: GPTQ follows Frantar et al. (2023).
+
+Software used at run time (installed by pip, not redistributed): PyTorch and
+torchvision (BSD-3-Clause), transformers and huggingface_hub (Apache-2.0), NumPy,
+SciPy, pandas, scikit-image, h5py (BSD-style), matplotlib (matplotlib licence), PyYAML
+(MIT); GPU path only: torchao (BSD-3-Clause), thop (MIT).
