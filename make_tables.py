@@ -315,8 +315,11 @@ def in_text_numbers():
         out[key] = {"value": value, "paper": paper, "where": where, "source": source}
 
     gate = pd.read_csv(R / "gate_nyu.csv").set_index("model")
-    for m, p in [("dav2_small", "0.062"), ("dav2_base", "0.057"), ("dav2_large", "0.055")]:
-        put(f"nyu_fp16_absrel/{m}", f3(gate.loc[m, "absrel"]), "results/gate_nyu.csv", p, "Sec. 4.3")
+    for name, pairs in [("gate_nyu", [("dav2_small", "0.062"), ("dav2_base", "0.057"), ("dav2_large", "0.055")]),
+                        ("gate_nyu_dpt", [("dpt_large", "0.099"), ("dpt_hybrid", "0.097")])]:
+        mean = pd.read_csv(R / "per_image" / f"{name}.csv", float_precision="round_trip").groupby("model").absrel.mean()
+        for m, p in pairs:
+            put(f"nyu_fp16_absrel/{m}", f3(mean[m]), f"results/per_image/{name}.csv", p, "Sec. 4.3")
     put("nyu_offset_vs_published_pct",
         f"{100 * gate.absrel_rel_err.min():.0f} to {100 * gate.absrel_rel_err.max():.0f}",
         "results/gate_nyu.csv", "16 to 22", "Sec. 4.3")
@@ -389,9 +392,9 @@ def in_text_numbers():
             "results/phase3_dpt_summary.csv", pf, "Sec. 11.1")
 
     nyu = _summary("phase3_nyu_bitsweep")
-    put("sec11.2/nyu_bitsweep_images", f"{int(nyu.n.max())} of 654 (first in file-name order)",
-        "results/phase3_nyu_bitsweep_summary.csv", "first 200 of the 654 test images", "Sec. 3.4, 11.2")
-    for m, p in [("dav2_base", "0.0003"), ("dav2_small", "0.001")]:
+    put("sec11.2/nyu_bitsweep_images", f"{int(nyu.n.max())}",
+        "results/phase3_nyu_bitsweep_summary.csv", "654", "Sec. 3.4, 11.2")
+    for m, p in [("dav2_base", "0.0003"), ("dav2_small", "0.0003"), ("dav2_large", "0.0007")]:
         v = nyu[(nyu.model == m) & (nyu.w_bits == 6) & (nyu.metric == "absrel")].mean_delta.iloc[0]
         put(f"sec11.2/nyu_{m}_w6_absrel_delta", f"{v:.4f}", "results/phase3_nyu_bitsweep_summary.csv",
             p, "Sec. 11.2")

@@ -152,6 +152,7 @@ for s in frozen_align boundary_f_sweep flying_sensitivity flying_on_diode analyz
 | Paper item | Config | Command | Output |
 |---|---|---|---|
 | Sec. 4.3 harness check (NYUv2) | `gate_nyu.yaml` | `python gate.py configs/gate_nyu.yaml` | `results/gate_nyu.csv` |
+| Sec. 4.3 harness check, DPT controls | `gate_nyu_dpt.yaml` | `python gate.py configs/gate_nyu_dpt.yaml` | `results/gate_nyu_dpt.csv` |
 | Tables 3–6, Fig. 2, Sec. 5, 13 | `phase3_bitsweep.yaml` | `python run_sweep.py configs/phase3_bitsweep.yaml` | `results/phase3_bitsweep.csv` |
 | Fig. 9, Sec. 11.1 | `phase3_dpt.yaml` | `python run_sweep.py configs/phase3_dpt.yaml` | `results/phase3_dpt.csv` |
 | Sec. 11.2 (NYUv2) | `phase3_nyu_bitsweep.yaml` | `python run_sweep.py configs/phase3_nyu_bitsweep.yaml` | `results/phase3_nyu_bitsweep.csv` |
@@ -187,22 +188,28 @@ After each sweep, `python analyze.py results/<sweep>.csv` writes the paired summ
 sensitivity tables; the 40 calibration images (the first 40 of iBims-1) are excluded from every S2Q, downstream and
 weight-and-activation evaluation, and GPTQ calibrates on the first 16.
 
-### What the shipped results do not yet back
+### Known issue: activation fake-quantization (Table 19)
 
 `results/tables/in_text_numbers.json` lists every number quoted in the text with the value printed in the paper, and
 all 21 data tables match the paper number for number. Confidence intervals of Cliff's δ are percentile bootstrap
 intervals that resample images with replacement and keep each image's pair together (`stats.cliffs_delta_ci`, 10^4
-resamples, seed 0). One number in the paper has no shipped result file:
+resamples, seed 0).
 
-- **DPT NYUv2 harness check (Sec. 4.3, AbsRel 0.101 and 0.096).** The output of that run was not kept;
-  `python gate.py configs/gate_nyu_dpt.yaml` regenerates it on a GPU.
+The activation-quantized rows of Table 19 (`results/w4a4_probe.csv`) come from the original run and ship without a
+per-image table. Rerunning `w4a4_probe.py` on a GPU with this code gives non-finite depth for every image. In half
+precision, `quant/actquant.py` applies per-channel fake-quantization, and a channel that is entirely zero gets a zero
+scale, because the 1e-12 floor of `fake_quant_tensor` underflows in float16. The weight-only rows of the same script
+are unaffected and reproduce exactly. A float32 CPU check of the two activation-quantized rows printed in Table 19
+(60 held-out images) matches the printed values with per-tensor activation scaling (AbsRel δ 0.614 and 0.979 against
+the printed 0.618 and 0.978) but not with the per-channel scaling that `quant/actquant.py` applies (0.046 and 0.916).
+This row of results is under review and may change.
 
 ## Tests
 
 | Check | Command | Expected output | Needs |
 |---|---|---|---|
 | Toolkit self-tests (alignment, metrics, statistics, fake quantization, activation quantization, GPTQ and group-wise cores) | `.venv/bin/python tests/test_selftests.py` | last line `PASS (10 self-tests)` | nothing |
-| Every derived result, table and figure rebuilt from the per-image tables and compared byte for byte | `.venv/bin/python tests/test_regenerate.py` | `results: 46/46 regenerated files identical`, `PASS` | nothing |
+| Every derived result, table and figure rebuilt from the per-image tables and compared byte for byte | `.venv/bin/python tests/test_regenerate.py` | `results: 55/55 regenerated files identical`, `PASS` | nothing |
 | Depth Boundary Error bit-identical to the official iBims-1 code | `IBIMS_EVAL_SCRIPT=<path>/evaluate_ibims_error_metrics.py .venv/bin/python tests/test_dbe_official.py` | `PASS (60 cases bit-identical)` (prints `SKIP` without the file) | the official script from the iBims-1 download, scikit-learn |
 | Shipped results and figures unchanged | `sha256sum -c checksums/results.sha256` | all `OK` | nothing |
 
@@ -211,15 +218,11 @@ are used.
 
 ## What is not included
 
-- **Per-image tables for the experiments that quantize and run the model inside the script** (Tables 9, 13, 14, 15,
-  the GPTQ rows of Table 17, the group-wise rows of Table 18, Tables 19 and 20, and the per-layer runs behind
-  Sec. 10.1). The shipped aggregates of these experiments come from the original runs, which did not save per-image
-  values. The scripts now write `results/per_image/<experiment>.csv` when rerun on a GPU and rebuild their aggregate
-  from it (`--from-per-image`), as the paper's Code Availability statement describes. The per-layer sensitivity tables
+- **A per-image table for Table 19** (see the known issue above). Every other experiment ships its per-image table in
+  `results/per_image/`, and its aggregate is rebuilt from it with `--from-per-image`. The per-layer sensitivity tables
   (`results/sensitivity_*_w4.csv`) are shipped, and the S2Q allocations rebuild from them byte for byte on a CPU
   (`python allocate.py --model <m>`, needs the checkpoints). Table 21 is a per-model timing measurement and Table 10 a
   parameter count, so neither has a per-image table.
-- **The DPT NYUv2 harness numbers of Sec. 4.3 (AbsRel 0.101 / 0.096)**, see above.
 - **Datasets, the prediction cache (about 3 GB) and model checkpoints**, and the qualitative figures 1 and 4, which
   show iBims-1 imagery; `figures_qualitative.py` rebuilds them from the dataset and the cache.
 - The manuscript sources.

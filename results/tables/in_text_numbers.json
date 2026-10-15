@@ -3,19 +3,31 @@
   "value": "0.062",
   "paper": "0.062",
   "where": "Sec. 4.3",
-  "source": "results/gate_nyu.csv"
+  "source": "results/per_image/gate_nyu.csv"
  },
  "nyu_fp16_absrel/dav2_base": {
   "value": "0.057",
   "paper": "0.057",
   "where": "Sec. 4.3",
-  "source": "results/gate_nyu.csv"
+  "source": "results/per_image/gate_nyu.csv"
  },
  "nyu_fp16_absrel/dav2_large": {
   "value": "0.055",
   "paper": "0.055",
   "where": "Sec. 4.3",
-  "source": "results/gate_nyu.csv"
+  "source": "results/per_image/gate_nyu.csv"
+ },
+ "nyu_fp16_absrel/dpt_large": {
+  "value": "0.099",
+  "paper": "0.099",
+  "where": "Sec. 4.3",
+  "source": "results/per_image/gate_nyu_dpt.csv"
+ },
+ "nyu_fp16_absrel/dpt_hybrid": {
+  "value": "0.097",
+  "paper": "0.097",
+  "where": "Sec. 4.3",
+  "source": "results/per_image/gate_nyu_dpt.csv"
  },
  "nyu_offset_vs_published_pct": {
   "value": "16 to 22",
@@ -162,8 +174,8 @@
   "source": "results/phase3_dpt_summary.csv"
  },
  "sec11.2/nyu_bitsweep_images": {
-  "value": "200 of 654 (first in file-name order)",
-  "paper": "first 200 of the 654 test images",
+  "value": "654",
+  "paper": "654",
   "where": "Sec. 3.4, 11.2",
   "source": "results/phase3_nyu_bitsweep_summary.csv"
  },
@@ -174,8 +186,14 @@
   "source": "results/phase3_nyu_bitsweep_summary.csv"
  },
  "sec11.2/nyu_dav2_small_w6_absrel_delta": {
-  "value": "0.0010",
-  "paper": "0.001",
+  "value": "0.0003",
+  "paper": "0.0003",
+  "where": "Sec. 11.2",
+  "source": "results/phase3_nyu_bitsweep_summary.csv"
+ },
+ "sec11.2/nyu_dav2_large_w6_absrel_delta": {
+  "value": "0.0007",
+  "paper": "0.0007",
   "where": "Sec. 11.2",
   "source": "results/phase3_nyu_bitsweep_summary.csv"
  },
