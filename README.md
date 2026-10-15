@@ -187,27 +187,15 @@ After each sweep, `python analyze.py results/<sweep>.csv` writes the paired summ
 sensitivity tables; the 40 calibration images (the first 40 of iBims-1) are excluded from every S2Q, downstream and
 weight-and-activation evaluation, and GPTQ calibrates on the first 16.
 
-### Where the shipped results differ from the printed paper
+### What the shipped results do not yet back
 
-`results/tables/in_text_numbers.json` lists every number quoted in the text with the value printed in the paper. All
-21 data tables match the paper number for number except the items below, which are reported rather than adjusted:
+`results/tables/in_text_numbers.json` lists every number quoted in the text with the value printed in the paper, and
+all 21 data tables match the paper number for number. Confidence intervals of Cliff's δ are percentile bootstrap
+intervals that resample images with replacement and keep each image's pair together (`stats.cliffs_delta_ci`, 10^4
+resamples, seed 0). One number in the paper has no shipped result file:
 
-- **Table 2, last column.** The exact smallest passing margins are 3.3% (Base AbsRel) and 7.3% (Large AbsRel); the
-  paper prints 3.4% and 7.4%, obtained by dividing the CI bound by the four-decimal margin printed in Table 4. The
-  yes/no verdicts are unaffected.
-- **Table 12 and Sec. 9.** The head-only six-bit edge-width effect on the Large model is 0.3149, printed as 0.32
-  (0.31 at two decimals). The full-model value in Table 5 (0.3152) is correctly 0.32.
-- **Sec. 10.1.** The boundary/aggregate per-layer sensitivity correlations −0.68 (Depth Anything V2 Large) and −0.93
-  (DPT-Hybrid) are Pearson coefficients; the Spearman coefficients are −0.16 and −0.02. The 0.92 for the penultimate
-  head convolution (`head.conv2`) is its mean DBE-completeness increase in pixels, not a Cliff's δ.
-- **Sec. 13 and Sec. 5.2 confidence intervals of Cliff's δ.** The resampling scheme used for these intervals was not
-  recorded. `make_tables.py` reports a paired and an unpaired percentile bootstrap (10^4 resamples, seed 0). The
-  unpaired one matches the four Sec. 13 intervals and the paired one the four Sec. 5.2 intervals to within 0.02, but
-  neither reproduces every printed bound exactly.
-- **Sec. 13 correlation.** Spearman 0.15 and 0.59 (n = 85) reproduce exactly; the bootstrap interval for the Large model
-  is [−0.07, 0.36] against the printed [−0.06, 0.37].
-- **NYUv2 bit sweep (Sec. 11.2)** uses the first 200 of the 654 test images (`configs/phase3_nyu_bitsweep.yaml`); the
-  harness check of Sec. 4.3 uses all 654.
+- **DPT NYUv2 harness check (Sec. 4.3, AbsRel 0.101 and 0.096).** The output of that run was not kept;
+  `python gate.py configs/gate_nyu_dpt.yaml` regenerates it on a GPU.
 
 ## Tests
 
@@ -225,13 +213,13 @@ are used.
 
 - **Per-image tables for the experiments that quantize and run the model inside the script** (Tables 9, 13, 14, 15,
   the GPTQ rows of Table 17, the group-wise rows of Table 18, Tables 19 and 20, and the per-layer runs behind
-  Sec. 10.1). These scripts keep only per-configuration effect sizes; their per-image values were not saved and need a
-  GPU rerun. Their aggregate outputs ship in `results/`. The per-layer sensitivity tables
+  Sec. 10.1). The shipped aggregates of these experiments come from the original runs, which did not save per-image
+  values. The scripts now write `results/per_image/<experiment>.csv` when rerun on a GPU and rebuild their aggregate
+  from it (`--from-per-image`), as the paper's Code Availability statement describes. The per-layer sensitivity tables
   (`results/sensitivity_*_w4.csv`) are shipped, and the S2Q allocations rebuild from them byte for byte on a CPU
   (`python allocate.py --model <m>`, needs the checkpoints). Table 21 is a per-model timing measurement and Table 10 a
   parameter count, so neither has a per-image table.
-- **The DPT NYUv2 harness numbers of Sec. 4.3 (AbsRel 0.101 / 0.096).** The result file of that run was not kept;
-  `python gate.py configs/gate_nyu_dpt.yaml` regenerates it on a GPU.
+- **The DPT NYUv2 harness numbers of Sec. 4.3 (AbsRel 0.101 / 0.096)**, see above.
 - **Datasets, the prediction cache (about 3 GB) and model checkpoints**, and the qualitative figures 1 and 4, which
   show iBims-1 imagery; `figures_qualitative.py` rebuilds them from the dataset and the cache.
 - The manuscript sources.

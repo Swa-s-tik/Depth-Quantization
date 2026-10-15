@@ -15,7 +15,7 @@ import pandas as pd
 from scipy.stats import pearsonr, spearmanr
 
 from common import RESULTS as R, TABLES as T, seed_everything
-from stats import cliffs_delta
+from stats import cliffs_delta, cliffs_delta_ci
 
 NICE = {"dav2_small": "DAv2-small", "dav2_base": "DAv2-base", "dav2_large": "DAv2-large"}
 
@@ -303,17 +303,8 @@ def _pairs(sweep, model, bits, metric):
     return qq[m], f[m]
 
 
-def cliff_ci(q, f, ci, paired, n_boot=10000, seed=0):
-    """Percentile bootstrap CI of Cliff's delta: resample images jointly (paired)
-    or each precision independently (unpaired)."""
-    rng = np.random.default_rng(seed)
-    n = len(q)
-    if paired:
-        idx = rng.integers(0, n, size=(n_boot, n))
-        boot = [cliffs_delta(q[i], f[i]) for i in idx]
-    else:
-        boot = [cliffs_delta(q[rng.integers(0, n, n)], f[rng.integers(0, n, n)]) for _ in range(n_boot)]
-    lo, hi = np.percentile(boot, [(100 - ci) / 2, 100 - (100 - ci) / 2])
+def cliff_ci(q, f, ci):
+    lo, hi = cliffs_delta_ci(q, f, ci=ci)
     return f"[{lo:.2f}, {hi:.2f}]"
 
 
@@ -342,23 +333,21 @@ def in_text_numbers():
         f"{s[(s.w_bits == 6) & s.model.isin(['dav2_base', 'dav2_large']) & s.metric.isin(['dbe_com', 'edge_width', 'flying_frac'])].p_adj.max():.1e}",
         "results/phase3_bitsweep_summary.csv", "< 1e-8", "Sec. 13")
 
-    # Sec. 13 / Sec. 5.2 confidence intervals of Cliff's delta
-    for metric, paper in [("flying_frac", "[0.68, 0.82]"), ("dbe_com", "[0.19, 0.49]"),
-                          ("edge_width", "[0.17, 0.46]"), ("absrel", "[-0.05, 0.19]")]:
+    # Sec. 13 / Sec. 5.2 confidence intervals of Cliff's delta (paired bootstrap, Sec. 4.2)
+    for metric, paper in [("flying_frac", "[0.69, 0.83]"), ("dbe_com", "[0.28, 0.43]"),
+                          ("edge_width", "[0.28, 0.38]"), ("absrel", "[0.05, 0.10]")]:
         q, f = _pairs("phase3_bitsweep", "dav2_large", 6, metric)
-        put(f"sec13/large_w6_{metric}_cliff_90ci_paired", cliff_ci(q, f, 90, True),
+        put(f"sec13/large_w6_{metric}_cliff_90ci", cliff_ci(q, f, 90),
             "results/phase3_bitsweep.csv", paper, "Sec. 13")
-        put(f"sec13/large_w6_{metric}_cliff_90ci_unpaired", cliff_ci(q, f, 90, False),
-            "results/phase3_bitsweep.csv", paper, "Sec. 13")
-    for bits, metric, paper in [(7, "flying_frac", "[0.32, 0.49]"), (6, "flying_frac", "[0.22, 0.35]"),
-                                (7, "dbe_com", "[0.11, 0.22]"), (6, "dbe_com", "[0.07, 0.19]")]:
+    for bits, metric, paper in [(7, "flying_frac", "[0.32, 0.48]"), (6, "flying_frac", "[0.22, 0.36]"),
+                                (7, "dbe_com", "[0.10, 0.22]"), (6, "dbe_com", "[0.07, 0.19]")]:
         q, f = _pairs("phase3_bitsweep", "dav2_base", bits, metric)
-        put(f"sec5.2/base_w{bits}_{metric}_cliff_95ci_paired", cliff_ci(q, f, 95, True),
+        put(f"sec5.2/base_w{bits}_{metric}_cliff_95ci", cliff_ci(q, f, 95),
             "results/phase3_bitsweep.csv", paper, "Sec. 5.2")
 
-    # Sec. 13: per-image interior vs near-boundary (k = 3 px band) AbsRel change, FP16 -> W6
+    # Sec. 13: per-image change in band AbsRel over N_3 vs AbsRel over the remaining pixels
     sweep = pd.read_csv(R / "phase3_bitsweep.csv")
-    for model, paper in [("dav2_large", "0.15 [-0.06, 0.37], n=85"), ("dav2_base", "0.59 [0.41, 0.73], n=85")]:
+    for model, paper in [("dav2_large", "0.15 [-0.07, 0.36], n=85"), ("dav2_base", "0.59 [0.41, 0.73], n=85")]:
         sub = sweep[sweep.model == model]
         fp = sub[sub.precision == "fp16"].set_index("image_id")
         q = sub[sub.w_bits == 6].set_index("image_id")
@@ -369,7 +358,7 @@ def in_text_numbers():
         rng = np.random.default_rng(0)
         idx = rng.integers(0, len(g), size=(10000, len(g)))
         lo, hi = np.nanpercentile([spearmanr(g[i], b[i])[0] for i in idx], [2.5, 97.5])
-        put(f"sec13/interior_vs_boundary_spearman/{model}",
+        put(f"sec13/boundary_band_vs_rest_spearman/{model}",
             f"{spearmanr(g, b)[0]:.2f} [{lo:.2f}, {hi:.2f}], n={len(g)}",
             "results/phase3_bitsweep.csv", paper, "Sec. 13")
 
@@ -379,11 +368,18 @@ def in_text_numbers():
     put("sec6.1/large_fp16_0-1px_absrel", f3(bands[("dav2_large", "fp16", "0-1")]),
         "results/bands.csv", "0.138", "Sec. 6.1")
 
-    for tol, bits, paper in [(2, 6, "0.006"), (1, 6, "0.018"), (1, 4, "0.035"), (1, 3, "0.99")]:
-        bf = pd.read_csv(R / f"boundary_f_sweep_t{tol}.csv")
-        r = bf[(bf.model == "dav2_large") & (bf.w_bits == bits)].iloc[0]
-        put(f"sec6.2/contour_f_t{tol}_large_w{bits}_cliff", f3(r.cliffs_delta) + f" (p={r.wilcoxon_p:.1e})",
-            f"results/boundary_f_sweep_t{tol}.csv", paper, "Sec. 6.2")
+    pf = pd.read_csv(R / "per_image" / "boundary_f.csv", float_precision="round_trip")
+    pf = pf[pf.model == "dav2_large"]
+    for tol, bits, paper, fmt in [(2, 6, "0.006", f3), (1, 6, "0.018", f3), (1, 4, "0.035", f3), (1, 3, "0.99", f2)]:
+        g = pf[pf.tol == tol]
+        base = g[g.w_bits == 16].set_index("image_id").boundary_f
+        q = g[g.w_bits == bits].set_index("image_id").boundary_f
+        both = base.index.intersection(q.index)
+        b, f = base[both].to_numpy(), q[both].to_numpy()
+        keep = np.isfinite(b) & np.isfinite(f)
+        p = pd.read_csv(R / f"boundary_f_sweep_t{tol}.csv").set_index(["model", "w_bits"]).wilcoxon_p[("dav2_large", bits)]
+        put(f"sec6.2/contour_f_t{tol}_large_w{bits}_cliff", fmt(cliffs_delta(b[keep], f[keep])) + f" (p={p:.1e})",
+            "results/per_image/boundary_f.csv", paper, "Sec. 6.2")
 
     dpt = _summary("phase3_dpt")
     for m, pa, pf in [("dpt_large", "0.005", "0.12"), ("dpt_hybrid", "0.013", "0.13")]:
@@ -393,6 +389,8 @@ def in_text_numbers():
             "results/phase3_dpt_summary.csv", pf, "Sec. 11.1")
 
     nyu = _summary("phase3_nyu_bitsweep")
+    put("sec11.2/nyu_bitsweep_images", f"{int(nyu.n.max())} of 654 (first in file-name order)",
+        "results/phase3_nyu_bitsweep_summary.csv", "first 200 of the 654 test images", "Sec. 3.4, 11.2")
     for m, p in [("dav2_base", "0.0003"), ("dav2_small", "0.001")]:
         v = nyu[(nyu.model == m) & (nyu.w_bits == 6) & (nyu.metric == "absrel")].mean_delta.iloc[0]
         put(f"sec11.2/nyu_{m}_w6_absrel_delta", f"{v:.4f}", "results/phase3_nyu_bitsweep_summary.csv",
@@ -406,15 +404,23 @@ def in_text_numbers():
 
     sens = pd.read_csv(R / "sensitivity_dav2_large_w4.csv")
     top = sens.sort_values("dbe_com_delta", ascending=False).iloc[0]
-    put("sec10.1/top_boundary_layer_large", f"{top.layer}: mean DBE-completeness increase {top.dbe_com_delta:.2f} px",
-        "results/sensitivity_dav2_large_w4.csv", "penultimate head convolution, 0.92 (printed as Cliff's delta)",
-        "Sec. 10.1")
-    for m, p in [("dav2_large", "-0.68"), ("dpt_hybrid", "-0.93")]:
+    put("sec10.1/top_boundary_layer_large", f"{top.layer}, mean DBE-completeness increase {top.dbe_com_delta:.2f} px",
+        "results/sensitivity_dav2_large_w4.csv", "penultimate head convolution, 0.92 pixels", "Sec. 10.1")
+    for m, p, pdrop, ptop10 in [("dav2_large", "-0.68, -0.16", "-0.26", "3"), ("dpt_hybrid", "-0.93, -0.02", "0.08", "2")]:
         sm = pd.read_csv(R / f"sensitivity_{m}_w4.csv")
-        put(f"sec10.1/boundary_vs_aggregate_sensitivity_corr/{m}",
-            f"Pearson {pearsonr(sm.dbe_com_delta, sm.absrel_delta)[0]:.2f}, "
-            f"Spearman {spearmanr(sm.dbe_com_delta, sm.absrel_delta)[0]:.2f}",
-            f"results/sensitivity_{m}_w4.csv", f"{p} (printed as Spearman)", "Sec. 10.1")
+        put(f"sec10.1/boundary_vs_aggregate_sensitivity_pearson_spearman/{m}",
+            f"{pearsonr(sm.dbe_com_delta, sm.absrel_delta)[0]:.2f}, "
+            f"{spearmanr(sm.dbe_com_delta, sm.absrel_delta)[0]:.2f}",
+            f"results/sensitivity_{m}_w4.csv", p, "Sec. 10.1")
+        top_agg = sm.nlargest(1, "absrel_delta").layer.iloc[0]
+        rest = sm[sm.layer != top_agg]
+        put(f"sec10.1/pearson_without_top_aggregate_layer/{m}",
+            f"{pearsonr(rest.dbe_com_delta, rest.absrel_delta)[0]:.2f} (without {top_agg})",
+            f"results/sensitivity_{m}_w4.csv", pdrop, "Sec. 10.1")
+        shared = [len(set(sm.nlargest(k, "dbe_com_delta").layer) & set(sm.nlargest(k, "absrel_delta").layer))
+                  for k in (5, 10)]
+        put(f"sec10.1/shared_layers_top5_top10/{m}", f"{shared[0]}, {shared[1]}",
+            f"results/sensitivity_{m}_w4.csv", f"0, {ptop10}", "Sec. 10.1")
     z = pd.read_csv(R / "sensitivity_zoedepth_w4.csv")
     pos = z.assign(p=z.dbe_com_delta.clip(lower=0)).groupby("component").p.sum()
     put("sec10.4/zoedepth_boundary_sensitivity_outside_head_pct",

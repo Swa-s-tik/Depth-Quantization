@@ -1,7 +1,8 @@
 # Aggregate-only bit sweep on NYUv2 (Sec. 11.2); boundary metrics are off because
-# NYUv2 Kinect ground truth is unreliable at edges. Uses the first 200 of the 654
-# test images. The shipped results contain DAv2 Small and Base; the DAv2-Large
-# run stopped after its FP16 pass (only FP16 rows are shipped for it).
+# NYUv2 Kinect ground truth is unreliable at edges. Uses 200 of the 654 test images,
+# the first 200 HDF5 files in sorted file-name order (subset: 200 in data/loaders.py).
+# The shipped results contain DAv2 Small and Base; the DAv2-Large run stopped after
+# its FP16 pass (only FP16 rows are shipped for it).
 # Command: python run_sweep.py configs/phase3_nyu_bitsweep.yaml
 #          python analyze.py results/phase3_nyu_bitsweep.csv
 name: phase3_nyu_bitsweep

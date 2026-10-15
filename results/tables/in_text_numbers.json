@@ -41,85 +41,61 @@
   "where": "Sec. 13",
   "source": "results/phase3_bitsweep_summary.csv"
  },
- "sec13/large_w6_flying_frac_cliff_90ci_paired": {
+ "sec13/large_w6_flying_frac_cliff_90ci": {
   "value": "[0.69, 0.83]",
-  "paper": "[0.68, 0.82]",
+  "paper": "[0.69, 0.83]",
   "where": "Sec. 13",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec13/large_w6_flying_frac_cliff_90ci_unpaired": {
-  "value": "[0.67, 0.84]",
-  "paper": "[0.68, 0.82]",
-  "where": "Sec. 13",
-  "source": "results/phase3_bitsweep.csv"
- },
- "sec13/large_w6_dbe_com_cliff_90ci_paired": {
+ "sec13/large_w6_dbe_com_cliff_90ci": {
   "value": "[0.28, 0.43]",
-  "paper": "[0.19, 0.49]",
+  "paper": "[0.28, 0.43]",
   "where": "Sec. 13",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec13/large_w6_dbe_com_cliff_90ci_unpaired": {
-  "value": "[0.21, 0.48]",
-  "paper": "[0.19, 0.49]",
-  "where": "Sec. 13",
-  "source": "results/phase3_bitsweep.csv"
- },
- "sec13/large_w6_edge_width_cliff_90ci_paired": {
+ "sec13/large_w6_edge_width_cliff_90ci": {
   "value": "[0.28, 0.38]",
-  "paper": "[0.17, 0.46]",
+  "paper": "[0.28, 0.38]",
   "where": "Sec. 13",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec13/large_w6_edge_width_cliff_90ci_unpaired": {
-  "value": "[0.18, 0.45]",
-  "paper": "[0.17, 0.46]",
-  "where": "Sec. 13",
-  "source": "results/phase3_bitsweep.csv"
- },
- "sec13/large_w6_absrel_cliff_90ci_paired": {
+ "sec13/large_w6_absrel_cliff_90ci": {
   "value": "[0.05, 0.10]",
-  "paper": "[-0.05, 0.19]",
+  "paper": "[0.05, 0.10]",
   "where": "Sec. 13",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec13/large_w6_absrel_cliff_90ci_unpaired": {
-  "value": "[-0.06, 0.21]",
-  "paper": "[-0.05, 0.19]",
-  "where": "Sec. 13",
-  "source": "results/phase3_bitsweep.csv"
- },
- "sec5.2/base_w7_flying_frac_cliff_95ci_paired": {
+ "sec5.2/base_w7_flying_frac_cliff_95ci": {
   "value": "[0.32, 0.48]",
-  "paper": "[0.32, 0.49]",
+  "paper": "[0.32, 0.48]",
   "where": "Sec. 5.2",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec5.2/base_w6_flying_frac_cliff_95ci_paired": {
+ "sec5.2/base_w6_flying_frac_cliff_95ci": {
   "value": "[0.22, 0.36]",
-  "paper": "[0.22, 0.35]",
+  "paper": "[0.22, 0.36]",
   "where": "Sec. 5.2",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec5.2/base_w7_dbe_com_cliff_95ci_paired": {
+ "sec5.2/base_w7_dbe_com_cliff_95ci": {
   "value": "[0.10, 0.22]",
-  "paper": "[0.11, 0.22]",
+  "paper": "[0.10, 0.22]",
   "where": "Sec. 5.2",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec5.2/base_w6_dbe_com_cliff_95ci_paired": {
+ "sec5.2/base_w6_dbe_com_cliff_95ci": {
   "value": "[0.07, 0.19]",
   "paper": "[0.07, 0.19]",
   "where": "Sec. 5.2",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec13/interior_vs_boundary_spearman/dav2_large": {
+ "sec13/boundary_band_vs_rest_spearman/dav2_large": {
   "value": "0.15 [-0.07, 0.36], n=85",
-  "paper": "0.15 [-0.06, 0.37], n=85",
+  "paper": "0.15 [-0.07, 0.36], n=85",
   "where": "Sec. 13",
   "source": "results/phase3_bitsweep.csv"
  },
- "sec13/interior_vs_boundary_spearman/dav2_base": {
+ "sec13/boundary_band_vs_rest_spearman/dav2_base": {
   "value": "0.59 [0.41, 0.73], n=85",
   "paper": "0.59 [0.41, 0.73], n=85",
   "where": "Sec. 13",
@@ -141,25 +117,25 @@
   "value": "0.006 (p=6.0e-02)",
   "paper": "0.006",
   "where": "Sec. 6.2",
-  "source": "results/boundary_f_sweep_t2.csv"
+  "source": "results/per_image/boundary_f.csv"
  },
  "sec6.2/contour_f_t1_large_w6_cliff": {
   "value": "0.018 (p=3.6e-03)",
   "paper": "0.018",
   "where": "Sec. 6.2",
-  "source": "results/boundary_f_sweep_t1.csv"
+  "source": "results/per_image/boundary_f.csv"
  },
  "sec6.2/contour_f_t1_large_w4_cliff": {
   "value": "0.035 (p=1.2e-03)",
   "paper": "0.035",
   "where": "Sec. 6.2",
-  "source": "results/boundary_f_sweep_t1.csv"
+  "source": "results/per_image/boundary_f.csv"
  },
  "sec6.2/contour_f_t1_large_w3_cliff": {
-  "value": "0.985 (p=1.2e-15)",
+  "value": "0.99 (p=1.2e-15)",
   "paper": "0.99",
   "where": "Sec. 6.2",
-  "source": "results/boundary_f_sweep_t1.csv"
+  "source": "results/per_image/boundary_f.csv"
  },
  "sec11.1/dpt_large_w6_absrel_cliff": {
   "value": "0.005",
@@ -184,6 +160,12 @@
   "paper": "0.13",
   "where": "Sec. 11.1",
   "source": "results/phase3_dpt_summary.csv"
+ },
+ "sec11.2/nyu_bitsweep_images": {
+  "value": "200 of 654 (first in file-name order)",
+  "paper": "first 200 of the 654 test images",
+  "where": "Sec. 3.4, 11.2",
+  "source": "results/phase3_nyu_bitsweep_summary.csv"
  },
  "sec11.2/nyu_dav2_base_w6_absrel_delta": {
   "value": "0.0003",
@@ -216,20 +198,44 @@
   "source": "results/phase6_diode_bitsweep_summary.csv"
  },
  "sec10.1/top_boundary_layer_large": {
-  "value": "head.conv2: mean DBE-completeness increase 0.92 px",
-  "paper": "penultimate head convolution, 0.92 (printed as Cliff's delta)",
+  "value": "head.conv2, mean DBE-completeness increase 0.92 px",
+  "paper": "penultimate head convolution, 0.92 pixels",
   "where": "Sec. 10.1",
   "source": "results/sensitivity_dav2_large_w4.csv"
  },
- "sec10.1/boundary_vs_aggregate_sensitivity_corr/dav2_large": {
-  "value": "Pearson -0.68, Spearman -0.16",
-  "paper": "-0.68 (printed as Spearman)",
+ "sec10.1/boundary_vs_aggregate_sensitivity_pearson_spearman/dav2_large": {
+  "value": "-0.68, -0.16",
+  "paper": "-0.68, -0.16",
   "where": "Sec. 10.1",
   "source": "results/sensitivity_dav2_large_w4.csv"
  },
- "sec10.1/boundary_vs_aggregate_sensitivity_corr/dpt_hybrid": {
-  "value": "Pearson -0.93, Spearman -0.02",
-  "paper": "-0.93 (printed as Spearman)",
+ "sec10.1/pearson_without_top_aggregate_layer/dav2_large": {
+  "value": "-0.26 (without head.conv3)",
+  "paper": "-0.26",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dav2_large_w4.csv"
+ },
+ "sec10.1/shared_layers_top5_top10/dav2_large": {
+  "value": "0, 3",
+  "paper": "0, 3",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dav2_large_w4.csv"
+ },
+ "sec10.1/boundary_vs_aggregate_sensitivity_pearson_spearman/dpt_hybrid": {
+  "value": "-0.93, -0.02",
+  "paper": "-0.93, -0.02",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dpt_hybrid_w4.csv"
+ },
+ "sec10.1/pearson_without_top_aggregate_layer/dpt_hybrid": {
+  "value": "0.08 (without head.head.4)",
+  "paper": "0.08",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dpt_hybrid_w4.csv"
+ },
+ "sec10.1/shared_layers_top5_top10/dpt_hybrid": {
+  "value": "0, 2",
+  "paper": "0, 2",
   "where": "Sec. 10.1",
   "source": "results/sensitivity_dpt_hybrid_w4.csv"
  },
