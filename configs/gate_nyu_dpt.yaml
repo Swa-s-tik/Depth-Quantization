@@ -1,6 +1,7 @@
-# Harness check for the DPT controls (Sec. 4.3, NYUv2 AbsRel 0.101 / 0.096).
-# Command: python gate.py configs/gate_nyu_dpt.yaml   -> results/gate_nyu_dpt.csv
-# The output of this run is not shipped (see README, "What is not included").
+# Harness check for the DPT controls (Sec. 4.3): FP16 relative AbsRel/delta1 on the
+# NYUv2 654-image test split (no published reference, so no pass/fail flag).
+# Command: python gate.py configs/gate_nyu_dpt.yaml   -> results/gate_nyu_dpt.csv + results/per_image/gate_nyu_dpt.csv
+#          python gate.py configs/gate_nyu_dpt.yaml --from-per-image   (summary only, no data)
 name: gate_nyu_dpt
 dataset: nyu
 subset: null

@@ -22,7 +22,9 @@ DERIVED = ([f"{s}_summary.csv" for s in SWEEPS] + [f"{s}_summary_verdicts.csv" f
            ["multimetric.csv", "dissociation_index.csv", "equivalence.csv", "equivalence_margins.csv",
             "frozen_align.csv", "boundary_f_sweep_t1.csv", "boundary_f_sweep_t2.csv",
             "flying_sensitivity.csv", "flying_on_diode.csv", "bands.csv", "boundary_sensitivity.csv",
-            "gptq_rtn.csv", "int8_real_summary.csv", "gate_nyu.csv"])
+            "gptq_rtn.csv", "int8_real_summary.csv", "gate_nyu.csv", "gate_nyu_dpt.csv",
+            "gptq_eval.csv", "gw_eval.csv", "s2q_diode_transfer.csv", "alt_ptq.csv", "downstream_recon.csv"] +
+           [f"s2q_pareto_{m}.csv" for m in ("dav2_large", "dpt_hybrid", "zoedepth")])
 STEPS = ([["analyze.py", f"RESULTS/{s}.csv"] for s in SWEEPS] +
          [["analyze_multimetric.py"], ["analyze_equivalence.py"],
           ["frozen_align.py", "--from-per-image"], ["boundary_f_sweep.py", "--from-per-image"],
@@ -31,7 +33,12 @@ STEPS = ([["analyze.py", f"RESULTS/{s}.csv"] for s in SWEEPS] +
           ["gptq_eval.py", "--rtn", "--from-per-image"],
           ["predict_score_int8real.py", "--from-per-image"],
           ["gate.py", "configs/gate_nyu.yaml", "--from-per-image"],
-          ["make_tables.py"], ["figures.py"]])
+          ["gate.py", "configs/gate_nyu_dpt.yaml", "--from-per-image"],
+          ["gptq_eval.py", "--from-per-image"], ["gw_eval.py", "--from-per-image"],
+          ["s2q_diode_transfer.py", "--from-per-image"], ["alt_ptq_sweep.py", "--from-per-image"],
+          ["downstream_recon.py", "--from-per-image"]] +
+         [["s2q_eval.py", "--model", m, "--from-per-image"] for m in ("dav2_large", "dpt_hybrid", "zoedepth")] +
+         [["make_tables.py"], ["figures.py"]])
 
 
 def main():
