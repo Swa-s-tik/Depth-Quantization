@@ -1,0 +1,12 @@
+# Flying-pixel metric validity (Sec. 14.3, Appendix A): FP16 baseline fraction,
+# eligible / flying pixel counts, and the FP16->W6 effect across the window
+# half-width k and the noise floor tau (auto = max(2 cm, 1% of fg depth)).
+# Needs iBims-1 and the phase3_bitsweep prediction cache (CPU only).
+# Command: python flying_sensitivity.py   (add --from-per-image to skip the cache)
+name: flying_sensitivity
+dataset: ibims
+model: dav2_large
+quant_tag: w6
+ks: [2, 3, 5]
+taus: [auto, 0.02, 0.05]
+seed: 0

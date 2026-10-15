@@ -1,0 +1,9 @@
+# Harness check (Sec. 4.3): FP16 relative AbsRel/delta1 on the NYUv2 654-image
+# test split vs the published Depth Anything V2 values.
+# Command: python gate.py configs/gate_nyu.yaml   -> results/gate_nyu.csv + results/per_image/gate_nyu.csv
+#          python gate.py configs/gate_nyu.yaml --from-per-image   (summary only, no data)
+name: gate_nyu
+dataset: nyu
+subset: null              # all 654 test images
+models: [dav2_small, dav2_base, dav2_large]
+seed: 0

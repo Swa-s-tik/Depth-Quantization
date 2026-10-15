@@ -1,0 +1,20 @@
+# Weight-only bit sweep on iBims-1 (Tables 3-6, Fig. 2, Sec. 13).
+# DAv2 Small/Base/Large x {FP16, W8..W3}, per-channel symmetric round-to-nearest.
+# Command: python run_sweep.py configs/phase3_bitsweep.yaml
+#          python analyze.py results/phase3_bitsweep.csv
+name: phase3_bitsweep
+dataset: ibims
+subset: null
+models: [dav2_small, dav2_base, dav2_large]
+specs:
+  - {kind: fp16}
+  - {kind: wq, w_bits: 8}
+  - {kind: wq, w_bits: 7}
+  - {kind: wq, w_bits: 6}
+  - {kind: wq, w_bits: 5}
+  - {kind: wq, w_bits: 4}
+  - {kind: wq, w_bits: 3}
+align: ss
+boundary_ks: [2, 3, 5]
+boundary: true
+seed: 0

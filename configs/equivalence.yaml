@@ -1,0 +1,12 @@
+# TOST equivalence of the aggregate metrics at W6 (Table 4) and its sensitivity
+# to the margin (Table 2), from the shipped per-image bit-sweep table.
+# Command: python analyze_equivalence.py
+name: equivalence
+sweep: phase3_bitsweep
+models: [dav2_base, dav2_large]
+w_bits: 6
+metrics: [absrel, sqrel, rmse, rmse_log, d1, d2, d3]
+margin: 0.05              # eps = 5% of the FP16 mean
+ci: 90                    # two one-sided tests at alpha = 0.05
+margin_sweep_pct: [3, 5, 7, 10]
+seed: 0

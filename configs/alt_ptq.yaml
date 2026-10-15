@@ -1,0 +1,12 @@
+# Dissociation under alternative round-to-nearest schemes on DAv2-Large / iBims-1
+# (Table 20). GPU.
+# Command: python alt_ptq_sweep.py   -> results/alt_ptq.csv
+name: alt_ptq
+model: dav2_large
+bits: [8, 6, 4]
+schemes:
+  pc_sym:  {per_channel: true,  symmetric: true,  clip_percentile: null}   # primary scheme
+  pt_sym:  {per_channel: false, symmetric: true,  clip_percentile: null}
+  pc_asym: {per_channel: true,  symmetric: false, clip_percentile: null}
+  pc_clip: {per_channel: true,  symmetric: true,  clip_percentile: 0.999}  # not in the paper
+seed: 0

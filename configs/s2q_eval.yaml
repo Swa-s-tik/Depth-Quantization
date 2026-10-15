@@ -1,0 +1,10 @@
+# S2Q vs uniform, head-protection and the aggregate-guided allocator at matched
+# average bit-width (Tables 13 and 15, Fig. 8), on the 60 held-out iBims-1 images
+# (the 40 calibration images are excluded). GPU.
+# Command: for m in dav2_large dpt_hybrid zoedepth; do python s2q_eval.py --model $m; done
+#          -> results/s2q_pareto_<model>.csv
+name: s2q_eval
+models: [dav2_large, dpt_hybrid, zoedepth]
+calib_n: 40
+uniform_bits: [4, 6, 8]    # uniform and head-protected baselines
+seed: 0

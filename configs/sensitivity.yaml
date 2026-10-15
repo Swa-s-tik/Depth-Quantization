@@ -1,0 +1,11 @@
+# Per-layer sensitivity for S2Q (Sec. 10.1, Fig. 7): quantize ONE layer to 4 bits,
+# measure the paired change in DBE-completeness, flying pixels and AbsRel on the
+# 40-image iBims-1 calibration split. GPU; about 35 min per model on one GPU.
+# Command: for m in dav2_large dpt_hybrid zoedepth; do python sensitivity.py --model $m; done
+#          -> results/sensitivity_<model>_w4.csv
+name: sensitivity
+models: [dav2_large, dpt_hybrid, zoedepth]
+bits: 4
+subset: 40                # calibration split = first 40 iBims-1 images
+per_channel: 1
+seed: 0

@@ -1,0 +1,11 @@
+# Robustness of the six-bit boundary effect to the boundary definition (Table 8):
+# band-AbsRel at band widths k and the flying-pixel gap factor gamma.
+# Needs iBims-1 and the phase3_bitsweep prediction cache (CPU only).
+# Command: python boundary_definition.py   (add --from-per-image to skip the cache)
+name: boundary_definition
+dataset: ibims
+models: [dav2_large, dav2_base]
+quant_tag: w6
+band_ks: [1, 2, 3, 5, 7]
+gap_factors: [1.5, 2.0, 3.0]
+seed: 0

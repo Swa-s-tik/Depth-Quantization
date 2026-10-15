@@ -1,0 +1,18 @@
+# Architecture controls on iBims-1 (Fig. 9, Sec. 11.1): DPT-Large (ViT) and
+# DPT-Hybrid (ResNet50+ViT), weight-only bit sweep.
+# Command: python run_sweep.py configs/phase3_dpt.yaml
+#          python analyze.py results/phase3_dpt.csv
+name: phase3_dpt
+dataset: ibims
+subset: null
+models: [dpt_large, dpt_hybrid]
+specs:
+  - {kind: fp16}
+  - {kind: wq, w_bits: 8}
+  - {kind: wq, w_bits: 6}
+  - {kind: wq, w_bits: 4}
+  - {kind: wq, w_bits: 3}
+align: ss
+boundary_ks: [3]
+boundary: true
+seed: 0

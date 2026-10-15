@@ -1,0 +1,9 @@
+# Round-to-nearest vs GPTQ on DAv2-Large (Table 17), same per-channel symmetric
+# grid; 16 calibration images, 84 evaluation images of iBims-1.
+# Commands: python gptq_eval.py         -> results/gptq_eval.csv   (GPU)
+#           python gptq_eval.py --rtn   -> results/gptq_rtn.csv    (CPU, from the cache)
+name: gptq_eval
+model: dav2_large
+n_calib: 16
+bits: [8, 6, 4]
+seed: 0

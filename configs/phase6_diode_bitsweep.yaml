@@ -1,0 +1,20 @@
+# Second sharp-ground-truth dataset (Table 16): DIODE indoors (FARO laser GT),
+# 80 images at a fixed stride over the 325 indoor validation images. GT edges
+# are derived from depth discontinuity (3x3 max/min depth ratio > 1.05).
+# Command: python run_sweep.py configs/phase6_diode_bitsweep.yaml
+#          python analyze.py results/phase6_diode_bitsweep.csv
+name: phase6_diode_bitsweep
+dataset: diode
+subset: 80                # fixed-stride sample of the indoor split
+models: [dav2_base, dav2_large]
+specs:
+  - {kind: fp16}
+  - {kind: wq, w_bits: 8}
+  - {kind: wq, w_bits: 7}
+  - {kind: wq, w_bits: 6}
+  - {kind: wq, w_bits: 5}
+  - {kind: wq, w_bits: 4}
+align: ss
+boundary_ks: [2, 3, 5]
+boundary: true
+seed: 0

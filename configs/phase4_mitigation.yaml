@@ -1,0 +1,18 @@
+# Head protection at near-equal memory on iBims-1 (Table 11, Fig. 5): keep the
+# output head in FP16 while quantizing encoder + neck, vs uniform W6/W4.
+# Command: python run_sweep.py configs/phase4_mitigation.yaml
+name: phase4_mitigation
+dataset: ibims
+subset: null
+models: [dav2_base, dav2_large]
+specs:
+  - {kind: fp16}
+  - {kind: wq, w_bits: 4}                          # uniform W4 baseline (cached)
+  - {kind: wq, w_bits: 6}                          # uniform W6 baseline (cached)
+  - {kind: mixed, bits: {encoder: 4, neck: 4}}     # head FP16, iso-mem ~= uniform W4
+  - {kind: mixed, bits: {encoder: 6, neck: 6}}     # head FP16, iso-mem ~= uniform W6
+  - {kind: mixed, bits: {encoder: 4, neck: 4, head: 8}}  # head INT8 variant
+align: ss
+boundary_ks: [3]
+boundary: true
+seed: 0

@@ -1,0 +1,11 @@
+# S2Q bit allocation (Sec. 10.2): Lagrangian sweep over per-layer bit-widths to
+# hit each average-bit target, for the combined (S2Q), boundary-only and
+# aggregate-only (aggregate-guided baseline) sensitivity signals. CPU.
+# Command: for m in dav2_large dpt_hybrid zoedepth; do python allocate.py --model $m; done
+#          -> results/<model>_{s2q,bonly,agg}_alloc.json
+name: allocate
+models: [dav2_large, dpt_hybrid, zoedepth]
+sensitivity_bits: 4
+candidates: [4, 6, 8, 16]  # 2/3-bit layers are excluded (catastrophic, not deployable)
+targets: [4, 5, 6, 7]      # average weight bit-width budgets
+seed: 0

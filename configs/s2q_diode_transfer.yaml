@@ -1,0 +1,8 @@
+# Cross-dataset transfer of the iBims-fit S2Q allocation to DIODE indoors
+# (Table 14), against uniform W6 and head-protected W6. GPU.
+# Command: python s2q_diode_transfer.py   -> results/s2q_diode_transfer.csv
+name: s2q_diode_transfer
+model: dav2_large
+subset: 80
+avg_bits: 6.0             # use the allocation closest to a 6-bit average
+seed: 0

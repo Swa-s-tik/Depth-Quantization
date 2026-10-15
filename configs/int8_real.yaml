@@ -1,0 +1,7 @@
+# Boundary accuracy of real W8A8 kernels (torchao Int8DynamicActivationInt8Weight)
+# vs FP16 on iBims-1 (Table 22). GPU.
+# Commands: python predict_score_int8real.py                   -> results/int8_real.csv + _summary.csv
+#           python predict_score_int8real.py --from-per-image  (summary only, CPU)
+name: int8_real
+models: [dav2_large, dav2_base]
+seed: 0

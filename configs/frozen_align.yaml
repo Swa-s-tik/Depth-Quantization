@@ -1,0 +1,9 @@
+# Alignment-protocol robustness (Table 7): refit vs frozen-FP16 scale+shift.
+# Needs iBims-1 and the phase3_bitsweep prediction cache (CPU only).
+# Command: python frozen_align.py            (cache -> per-image -> aggregate)
+#          python frozen_align.py --from-per-image   (aggregate only, no data)
+name: frozen_align
+dataset: ibims
+models: [dav2_base, dav2_large]
+bits: [8, 7, 6, 5, 4]
+seed: 0

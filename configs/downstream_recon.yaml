@@ -1,0 +1,11 @@
+# Three-dimensional reconstruction near boundaries (Table 9): Chamfer distance and
+# reconstruction F-score in a 5 px band around the annotated edges, on the 60
+# held-out iBims-1 images. GPU.
+# Command: python downstream_recon.py   -> results/downstream_recon.csv
+name: downstream_recon
+model: dav2_large
+tau: 0.05                 # reconstruction-F threshold (m)
+band_px: 5
+calib_n: 40
+bits: [6, 4]              # uniform and head-protected; S2Q from <model>_s2q_alloc.json
+seed: 0

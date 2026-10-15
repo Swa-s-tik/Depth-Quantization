@@ -1,0 +1,6 @@
+# Weight memory of FP16 / uniform W6 / head-protected W6 (Table 10). CPU only;
+# downloads the checkpoints from the Hugging Face Hub on first use.
+# Command: python memory_table.py
+name: memory
+models: [dav2_base, dav2_large]
+seed: 0

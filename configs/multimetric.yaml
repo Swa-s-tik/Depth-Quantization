@@ -1,0 +1,8 @@
+# Multi-metric dissociation (Table 3) and Dissociation Index (Table 6), computed
+# from the shipped per-image bit-sweep table (no data or cache needed).
+# Command: python analyze_multimetric.py
+name: multimetric
+sweep: phase3_bitsweep
+models: [dav2_base, dav2_large, dav2_small]
+bits: [8, 7, 6, 5, 4, 3]
+seed: 0

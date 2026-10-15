@@ -1,0 +1,12 @@
+# Contour F-measure across the bit sweep (Sec. 6.2): precision/recall of
+# predicted vs annotated depth edges at a pixel tolerance. One output file per
+# tolerance: results/boundary_f_sweep_t1.csv and results/boundary_f_sweep_t2.csv.
+# Needs iBims-1 and the phase3_bitsweep prediction cache (CPU only).
+# Command: python boundary_f_sweep.py   (add --from-per-image to skip the cache)
+name: boundary_f
+dataset: ibims
+models: [dav2_base, dav2_large]
+bits: [8, 7, 6, 5, 4, 3]
+tolerances: [1, 2]
+ci: 90
+seed: 0

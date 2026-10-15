@@ -1,0 +1,14 @@
+# Weight-and-activation regime on DAv2-Large (Table 19): static per-channel
+# activation fake-quantization on top of W6 weights, on the 60 held-out images.
+# Command: python w4a4_probe.py   -> results/w4a4_probe.csv   (GPU)
+name: wa_probe
+model: dav2_large
+calib_n: 40               # first 40 images excluded (S2Q calibration split)
+configs:
+  - {name: "W6 headprot, A16", weights: headprot6, a_bits: 16}
+  - {name: "W6 headprot, A8",  weights: headprot6, a_bits: 8}
+  - {name: "W6 headprot, A4",  weights: headprot6, a_bits: 4}
+  - {name: "W6 uniform, A16",  weights: uniform6,  a_bits: 16}
+  - {name: "W6 uniform, A4",   weights: uniform6,  a_bits: 4}
+  - {name: "W16 (weights fp16), A4", weights: none, a_bits: 4}
+seed: 0

@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv*/
+venv/
+
+# Not redistributed (see NOTICE): datasets, prediction cache, model checkpoints
+datasets/
+cache/
+*.safetensors
+*.pt
+*.npz
+
+# Run logs written by run_sweep.py
+results/*.log

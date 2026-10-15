@@ -1,0 +1,21 @@
+# Component ablation on iBims-1 (Table 12, Fig. 6): quantize one disjoint
+# component (encoder / neck / head) at W6 and W4.
+# Command: python run_sweep.py configs/phase4_mechanism.yaml
+#          python analyze.py results/phase4_mechanism.csv
+name: phase4_mechanism
+dataset: ibims
+subset: null
+models: [dav2_base, dav2_large]
+specs:
+  - {kind: fp16}
+  - {kind: wq, w_bits: 6, component: encoder}
+  - {kind: wq, w_bits: 6, component: neck}
+  - {kind: wq, w_bits: 6, component: head}
+  - {kind: wq, w_bits: 4, component: encoder}
+  - {kind: wq, w_bits: 4, component: neck}
+  - {kind: wq, w_bits: 4, component: head}
+  - {kind: wq, w_bits: 4, component: all}
+align: ss
+boundary_ks: [3]
+boundary: true
+seed: 0

@@ -1,0 +1,9 @@
+# Real deployment measurements (Table 21): size, GMACs (thop) and CUDA-event
+# latency (median of 60 timed passes after 15 warm-up passes, batch 1). GPU.
+# Command: python bench_deploy.py   -> results/deploy.csv
+name: deploy
+models: [dav2_small, dav2_base, dav2_large, dpt_large, dpt_hybrid]
+precisions: [fp32, fp16, int8]
+n_warmup: 15
+n_iter: 60
+seed: 0

@@ -1,0 +1,9 @@
+# Flying-pixel fraction on DIODE indoors (Table 16, last column).
+# Needs DIODE and the phase6_diode_bitsweep prediction cache (CPU only).
+# Command: python flying_on_diode.py   (add --from-per-image to skip the cache)
+name: flying_on_diode
+dataset: diode
+subset: 80
+models: [dav2_base, dav2_large]
+bits: [6, 4]
+seed: 0

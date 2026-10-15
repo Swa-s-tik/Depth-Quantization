@@ -1,0 +1,6 @@
+# Group-wise four-bit weights on DAv2-Large / iBims-1 (Table 18). GPU.
+# Command: python gw_eval.py   -> results/gw_eval.csv
+name: gw_eval
+model: dav2_large
+schemes: [[4, 128], [4, 64], [3, 128]]   # [bits, group size]
+seed: 0

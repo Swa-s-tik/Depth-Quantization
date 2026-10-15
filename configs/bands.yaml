@@ -1,0 +1,10 @@
+# Error vs distance from the nearest annotated boundary (Fig. 3, Sec. 6.1).
+# Bands are (lo, hi] in pixels of the Euclidean distance to the GT edge set.
+# Needs iBims-1 and the phase3_bitsweep prediction cache (CPU only).
+# Command: python analyze_bands.py   (add --from-per-image to skip the cache)
+name: bands
+dataset: ibims
+models: [dav2_large, dav2_base]
+precisions: [fp16, w6, w4]
+bands: [["0-1", 0, 1], ["1-3", 1, 3], ["3-5", 3, 5], ["5-10", 5, 10], ["interior", 10, .inf]]
+seed: 0
