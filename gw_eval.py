@@ -7,8 +7,10 @@ is what real 4-bit deployments use, so if the dissociation appears there it is a
 deployable-bit-width phenomenon. We fake-quantize each Linear/Conv2d weight
 group-wise (per output row, per group of G input elements) at 4 bits and score
 aggregate + boundary vs FP16 on iBims-1 (DAv2-Large).
-Output: results/gw_eval.csv.  Command: python gw_eval.py
-`python gw_eval.py --selftest` runs the core check (no GPU/data).
+Outputs results/per_image/gw_eval.csv and results/gw_eval.csv.
+Commands: python gw_eval.py                   (GPU)
+          python gw_eval.py --from-per-image  (aggregate only, CPU)
+          python gw_eval.py --selftest        (core check, no GPU/data)
 """
 import sys
 import numpy as np
@@ -16,7 +18,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from common import CACHE_ROOT, RESULTS, load_config, seed_everything
+from common import CACHE_ROOT, PER_IMAGE, RESULTS, load_config, seed_everything
 _QUANTIZABLE = (nn.Linear, nn.Conv2d)
 
 
@@ -57,7 +59,7 @@ from align import scale_shift_align
 from predict import load_cached_pred
 import score.boundary as B
 from score.pointcloud import flying_pixel_fraction
-from stats import cliffs_delta
+from stats import cliffs_delta, finite_pairs
 
 CFG = load_config("gw_eval")
 CACHE = CACHE_ROOT
@@ -75,9 +77,12 @@ def quantize_gw_(model, bits, G):
     return n
 
 
+METRICS = ["absrel", "dbe_com", "edge_width", "flying"]
+
+
 def score(model, proc, samples, fp16, md, xd):
-    acc = {"absrel": [], "dbe_com": [], "edge_width": [], "flying": []}
-    base = {k: [] for k in acc}
+    """Per-image quantized and FP16 metrics (images with a valid FP16 baseline)."""
+    rows = []
     for s in samples:
         raw = infer_depth(model, proc, s.rgb, out_hw=s.gt_depth.shape)
         a, _, _ = scale_shift_align(raw, s.gt_depth, s.valid_mask, mode="ss",
@@ -92,10 +97,9 @@ def score(model, proc, samples, fp16, md, xd):
                 "dbe_com": B.dbe(a, s.gt_edges, s.valid_mask)[1],
                 "edge_width": B.edge_sharpness(a, s.gt_edges, s.valid_mask, k=2)[1],
                 "flying": flying_pixel_fraction(a, s.gt_depth, s.gt_edges, s.valid_mask, k=3)["flying_frac"]}
-        for k, v in vals.items():
-            if np.isfinite(v) and np.isfinite(f[k]):
-                acc[k].append(v); base[k].append(f[k])
-    return acc, base
+        rows.append({"image_id": s.id, **{f"q_{k}": v for k, v in vals.items()},
+                     **{f"fp16_{k}": f[k] for k in METRICS}})
+    return rows
 
 
 def fp16_metrics(samples, md, xd):
@@ -123,19 +127,31 @@ def main():
     samples = [s for s in gen() if s.gt_edges is not None and s.K is not None]
     print(f"gw eval on {len(samples)} images")
     fp16 = fp16_metrics(samples, md, xd)
-    rows = []
+    per_img = []
     for bits, G in CFG["schemes"]:
         model, proc, _ = load_model(MODEL, dtype=torch.float16)
         nq = quantize_gw_(model, bits, G)
-        acc, base = score(model, proc, samples, fp16, md, xd)
+        per_img += [{"scheme": f"gw{bits}_g{G}", "n_layers": nq, **r}
+                    for r in score(model, proc, samples, fp16, md, xd)]
         del model; torch.cuda.empty_cache()
-        r = {"scheme": f"gw{bits}_g{G}", "n_layers": nq, "n_img": len(acc["absrel"])}
-        for k in acc:
-            r[f"{k}_cliff"] = round(cliffs_delta(np.array(acc[k]), np.array(base[k])), 3)
-        rows.append(r); print(r)
-        pd.DataFrame(rows).to_csv(RESULTS / "gw_eval.csv", index=False)
-    print("wrote results/gw_eval.csv")
+        PER_IMAGE.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(per_img).to_csv(PER_IMAGE / "gw_eval.csv", index=False)
+    return summarize()
+
+
+def summarize():
+    df = pd.read_csv(PER_IMAGE / "gw_eval.csv", float_precision="round_trip")
+    rows = []
+    for scheme, g in df.groupby("scheme", sort=False):
+        r = {"scheme": scheme, "n_layers": int(g.n_layers.iloc[0]),
+             "n_img": len(finite_pairs(g, "absrel")[0])}
+        for k in METRICS:
+            r[f"{k}_cliff"] = round(cliffs_delta(*finite_pairs(g, k)), 3)
+        rows.append(r)
+    out = pd.DataFrame(rows)
+    out.to_csv(RESULTS / "gw_eval.csv", index=False)
+    return out
 
 
 if __name__ == "__main__":
-    main()
+    print((summarize() if "--from-per-image" in sys.argv else main()).to_string(index=False))

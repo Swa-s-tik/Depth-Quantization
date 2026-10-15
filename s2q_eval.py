@@ -10,15 +10,16 @@ and aggregate AbsRel, all as paired changes from the cached FP16 baseline, and w
 record the real weight-memory of each configuration. This is the Pareto data:
 memory / avg-bit vs boundary fidelity.
 
-Output: results/s2q_pareto_<model>.csv
-Command: python s2q_eval.py --model dav2_large   (also dpt_hybrid, zoedepth)
+Outputs results/per_image/s2q_pareto_<model>.csv and results/s2q_pareto_<model>.csv.
+Commands: python s2q_eval.py --model dav2_large   (also dpt_hybrid, zoedepth; GPU)
+          python s2q_eval.py --model dav2_large --from-per-image   (aggregate only, CPU)
 """
 import json
 import numpy as np
 import pandas as pd
 import torch
 
-from common import CACHE_ROOT, RESULTS, load_config, seed_everything
+from common import CACHE_ROOT, PER_IMAGE, RESULTS, load_config, seed_everything
 
 CFG = load_config("s2q_eval")
 from data.loaders import build
@@ -30,7 +31,7 @@ from score.aggregate import aggregate_metrics
 from score.pointcloud import flying_pixel_fraction
 from predict import load_cached_pred
 from quant.fakequant import quantize_per_layer_, _QUANTIZABLE
-from stats import cliffs_delta
+from stats import cliffs_delta, finite_pairs
 
 CACHE = CACHE_ROOT
 import argparse
@@ -57,38 +58,54 @@ def all_layer_names(model):
     return [n for n, m in model.named_modules() if isinstance(m, _QUANTIZABLE)]
 
 
+METS = ["absrel", "dbe_com", "boundary_f", "flying_frac"]
+
+
 def eval_config(name, bmap, samples, md, xd, fp16):
+    """Per-image rows (quantized and FP16 metrics) for one weight configuration."""
     model, proc, _ = load_model(MODEL, dtype=torch.float16)
     _, wbytes = quantize_per_layer_(model, bmap, per_channel=True, default_bits=16)
     nparam = sum(p.numel() for p in model.parameters())
     rows = []
-    METS = ["absrel", "dbe_com", "boundary_f", "flying_frac"]
-    acc = {m: [] for m in METS}
     for s in samples:
         raw = infer_depth(model, proc, s.rgb, out_hw=s.gt_depth.shape)
         q = score_one(raw, s, md, xd)
-        for m in METS:
-            if m in q and m in fp16[s.id] and np.isfinite(q[m]) and np.isfinite(fp16[s.id][m]):
-                acc[m].append((q[m], fp16[s.id][m]))
+        rows.append({"config": name, "avg_bits": round(wbytes * 8 / nparam, 3),
+                     "weight_MB": round(wbytes / 1e6, 1), "image_id": s.id,
+                     **{f"q_{m}": q.get(m, np.nan) for m in METS},
+                     **{f"fp16_{m}": fp16[s.id].get(m, np.nan) for m in METS}})
     del model; torch.cuda.empty_cache()
-    out = {"config": name, "avg_bits": round(wbytes * 8 / nparam, 3),
-           "weight_MB": round(wbytes / 1e6, 1)}
-    for m in METS:
-        if acc[m]:
-            qv = np.array([x[0] for x in acc[m]]); fv = np.array([x[1] for x in acc[m]])
-            out[f"{m}_mean"] = round(float(qv.mean()), 4)
-            out[f"{m}_delta"] = round(float((qv - fv).mean()), 4)
-            # boundary_f: higher=better, so worse-positive cliff = fp - q
-            worse_hi = m != "boundary_f"
-            out[f"{m}_cliff"] = round(cliffs_delta(qv, fv) if worse_hi else cliffs_delta(fv, qv), 3)
+    return rows
+
+
+def summarize(model):
+    df = pd.read_csv(PER_IMAGE / f"s2q_pareto_{model}.csv", float_precision="round_trip")
+    rows = []
+    for name, g in df.groupby("config", sort=False):
+        out = {"config": name, "avg_bits": g.avg_bits.iloc[0], "weight_MB": g.weight_MB.iloc[0]}
+        for m in METS:
+            qv, fv = finite_pairs(g, m)
+            if len(qv):
+                out[f"{m}_mean"] = round(float(qv.mean()), 4)
+                out[f"{m}_delta"] = round(float((qv - fv).mean()), 4)
+                # boundary_f: higher=better, so worse-positive cliff = fp - q
+                worse_hi = m != "boundary_f"
+                out[f"{m}_cliff"] = round(cliffs_delta(qv, fv) if worse_hi else cliffs_delta(fv, qv), 3)
+        rows.append(out)
+    out = pd.DataFrame(rows)
+    out.to_csv(RESULTS / f"s2q_pareto_{model}.csv", index=False)
     return out
 
 
 def main():
     global MODEL, DISP
     ap = argparse.ArgumentParser(); ap.add_argument("--model", required=True, choices=CFG["models"])
-    MODEL = ap.parse_args().model
+    ap.add_argument("--from-per-image", action="store_true")
+    args = ap.parse_args()
+    MODEL = args.model
     seed_everything(CFG.get("seed", 0))
+    if args.from_per_image:
+        return summarize(MODEL)
     from models.registry import MODELS
     DISP = MODELS[MODEL].get("kind", "relative") == "relative"
     gen, info = build("ibims")
@@ -115,25 +132,22 @@ def main():
     model, _, _ = load_model(MODEL, dtype=torch.float16); layers = all_layer_names(model)
     del model; torch.cuda.empty_cache()
 
-    rows = []
-    out_csv = RESULTS / f"s2q_pareto_{MODEL}.csv"
+    configs = []
     # S2Q (combined) + ablations: boundary-only, aggregate-only
     for tag, fname in [("s2q", f"{MODEL}_s2q_alloc.json"), ("bonly", f"{MODEL}_bonly_alloc.json"),
                        ("aggguided", f"{MODEL}_agg_alloc.json")]:
-        alloc = json.loads((RESULTS / fname).read_text())
-        for ab, bmap in alloc.items():
-            rows.append(eval_config(f"{tag}@{ab}", bmap, samples, md, xd, fp16))
-            print(rows[-1])
-            pd.DataFrame(rows).to_csv(out_csv, index=False)
+        configs += [(f"{tag}@{ab}", bmap) for ab, bmap in json.loads((RESULTS / fname).read_text()).items()]
     # uniform + head-protect at integer budgets
     for b in CFG["uniform_bits"]:
-        uni = {l: b for l in layers}
-        rows.append(eval_config(f"uniform@{b}", uni, samples, md, xd, fp16)); print(rows[-1])
-        hp = {l: b for l in layers if "head." not in l}
-        rows.append(eval_config(f"headprot@{b}", hp, samples, md, xd, fp16)); print(rows[-1])
-        pd.DataFrame(rows).to_csv(out_csv, index=False)
-    print(f"\nwrote {out_csv}")
+        configs += [(f"uniform@{b}", {l: b for l in layers}),
+                    (f"headprot@{b}", {l: b for l in layers if "head." not in l})]
+    per_img = []
+    PER_IMAGE.mkdir(parents=True, exist_ok=True)
+    for name, bmap in configs:
+        per_img += eval_config(name, bmap, samples, md, xd, fp16)
+        pd.DataFrame(per_img).to_csv(PER_IMAGE / f"s2q_pareto_{MODEL}.csv", index=False)
+    return summarize(MODEL)
 
 
 if __name__ == "__main__":
-    main()
+    print(main().to_string(index=False))

@@ -97,6 +97,26 @@ def summarize_delta(quant_vals, fp16_vals, eps_equiv=None, seed=0):
     return out
 
 
+def cliffs_delta_ci(q, f, ci=95, n_boot=10000, seed=0):
+    """Percentile bootstrap CI of Cliff's delta(q, f) for PAIRED per-image values:
+    images are resampled with replacement and each image keeps its pair."""
+    q = np.asarray(q, float); f = np.asarray(f, float)
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, q.size, size=(n_boot, q.size))
+    boot = [cliffs_delta(q[i], f[i]) for i in idx]
+    lo, hi = np.percentile(boot, [(100 - ci) / 2, 100 - (100 - ci) / 2])
+    return float(lo), float(hi)
+
+
+def finite_pairs(df, metric, q="q", f="fp16"):
+    """Per-image quantized and FP16 values of `metric` (columns <q>_<metric> and
+    <f>_<metric> of a per-image table) where both are finite, in table order."""
+    qv = df[f"{q}_{metric}"].to_numpy(float)
+    fv = df[f"{f}_{metric}"].to_numpy(float)
+    m = np.isfinite(qv) & np.isfinite(fv)
+    return qv[m], fv[m]
+
+
 def _selftest():
     rng = np.random.default_rng(2)
     fp16 = rng.uniform(0.05, 0.15, size=100)
@@ -111,6 +131,8 @@ def _selftest():
     assert s1["wilcoxon_p"] < 1e-3 and s1["mean_delta"] > 0.04, s1
     assert s1["cliffs_delta"] > 0.3, s1
     assert not s1["tost"]["equivalent"], s1
+    lo, hi = cliffs_delta_ci(quant, fp16, n_boot=500)
+    assert 0 < lo <= s1["cliffs_delta"] <= hi, (lo, hi)
     # BH monotonic + bounded
     adj, rej = bh_fdr([0.001, 0.02, 0.5, 0.9])
     assert adj[0] <= adj[1] <= adj[2] <= adj[3] and adj.max() <= 1.0, adj

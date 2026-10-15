@@ -10,11 +10,12 @@ the phenomenon is a property of low-bit weights and not of naive rounding, and i
 shows that a reconstruction objective (bulk output MSE) does not protect boundaries.
 
 GPTQ is run at W8/W6/W4 on DAv2-Large (16 calibration images, evaluated on the
-remaining 84): results/gptq_eval.csv. The RTN rows are scored on the same 84
-images from the phase3_bitsweep prediction cache (CPU only, `--rtn`):
-results/per_image/gptq_rtn.csv and results/gptq_rtn.csv.
+remaining 84): results/per_image/gptq_eval.csv and results/gptq_eval.csv. The RTN
+rows are scored on the same 84 images from the phase3_bitsweep prediction cache
+(CPU only, `--rtn`): results/per_image/gptq_rtn.csv and results/gptq_rtn.csv.
 Commands: python gptq_eval.py            (GPTQ, GPU)
           python gptq_eval.py --rtn      (RTN arm from the cache, CPU)
+          add --from-per-image to either to rebuild the aggregate only (CPU)
           python gptq_eval.py --selftest (core-quantizer check, no GPU/data)
 """
 import sys
@@ -111,7 +112,7 @@ from align import scale_shift_align
 from predict import load_cached_pred
 import score.boundary as B
 from score.pointcloud import flying_pixel_fraction
-from stats import cliffs_delta
+from stats import cliffs_delta, finite_pairs
 
 CFG = load_config("gptq_eval")
 CACHE = CACHE_ROOT
@@ -170,8 +171,8 @@ def gptq_quantize_model_(model, H, bits):
 
 
 def score(model, proc, samples, fp16, md, xd):
-    acc = {"absrel": [], "dbe_com": [], "edge_width": [], "flying": []}
-    base = {k: [] for k in acc}
+    """Per-image GPTQ and FP16 metrics (images with a valid FP16 baseline)."""
+    rows = []
     for s in samples:
         raw = infer_depth(model, proc, s.rgb, out_hw=s.gt_depth.shape)
         a, _, _ = scale_shift_align(raw, s.gt_depth, s.valid_mask, mode="ss",
@@ -186,10 +187,9 @@ def score(model, proc, samples, fp16, md, xd):
         _, com = B.dbe(a, s.gt_edges, s.valid_mask)
         _, ew = B.edge_sharpness(a, s.gt_edges, s.valid_mask, k=2)
         ff = flying_pixel_fraction(a, s.gt_depth, s.gt_edges, s.valid_mask, k=3)["flying_frac"]
-        for k, v in [("absrel", ar), ("dbe_com", com), ("edge_width", ew), ("flying", ff)]:
-            if np.isfinite(v) and np.isfinite(f[k]):
-                acc[k].append(v); base[k].append(f[k])
-    return acc, base
+        rows.append({"image_id": s.id, **{f"fp16_{k}": f[k] for k in METRICS},
+                     "gptq_absrel": ar, "gptq_dbe_com": com, "gptq_edge_width": ew, "gptq_flying": ff})
+    return rows
 
 
 def fp16_metrics(samples, md, xd, tag="fp16"):
@@ -245,18 +245,21 @@ def rtn_per_image():
     pd.DataFrame(rows).to_csv(PER_IMAGE / "gptq_rtn.csv", index=False)
 
 
-def rtn_summary():
-    df = pd.read_csv(PER_IMAGE / "gptq_rtn.csv", float_precision="round_trip")
+def summary(method):
+    """Aggregate of results/per_image/gptq_<method>.csv (method: rtn or eval = GPTQ)."""
+    q = "rtn" if method == "rtn" else "gptq"
+    df = pd.read_csv(PER_IMAGE / f"gptq_{method}.csv", float_precision="round_trip")
     rows = []
     for bits in CFG["bits"]:
         g = df[df.w_bits == bits]
         acc, base = {}, {}
         for k in METRICS:
-            ok = np.isfinite(g[f"rtn_{k}"]) & np.isfinite(g[f"fp16_{k}"])
-            acc[k], base[k] = list(g[f"rtn_{k}"][ok]), list(g[f"fp16_{k}"][ok])
-        rows.append(_effects(acc, base, {"method": "rtn", "w_bits": bits, "n_img": len(g)}))
+            acc[k], base[k] = map(list, finite_pairs(g, k, q=q))
+        head = ({"method": "rtn", "w_bits": bits, "n_img": len(g)} if q == "rtn" else
+                {"method": "gptq", "w_bits": bits, "n_layers": int(g.n_layers.iloc[0])})
+        rows.append(_effects(acc, base, head))
     out = pd.DataFrame(rows)
-    out.to_csv(RESULTS / "gptq_rtn.csv", index=False)
+    out.to_csv(RESULTS / f"gptq_{method}.csv", index=False)
     return out
 
 
@@ -271,23 +274,19 @@ def main():
     del model; torch.cuda.empty_cache()
     print(f"collected Hessians for {len(H)} layers")
 
-    rows = []
+    per_img = []
+    PER_IMAGE.mkdir(parents=True, exist_ok=True)
     for bits in CFG["bits"]:
         model, proc, _ = load_model(MODEL, dtype=torch.float16)
         nq = gptq_quantize_model_(model, H, bits)
-        acc, base = score(model, proc, evalset, fp16, md, xd)
+        per_img += [{"w_bits": bits, "n_layers": nq, **r} for r in score(model, proc, evalset, fp16, md, xd)]
         del model; torch.cuda.empty_cache()
-        r = _effects(acc, base, {"method": "gptq", "w_bits": bits, "n_layers": nq})
-        rows.append(r); print(r)
-        pd.DataFrame(rows).to_csv(RESULTS / "gptq_eval.csv", index=False)
-    print("wrote results/gptq_eval.csv")
+        pd.DataFrame(per_img).to_csv(PER_IMAGE / "gptq_eval.csv", index=False)
 
 
 if __name__ == "__main__":
     seed_everything(CFG.get("seed", 0))
-    if "--rtn" in sys.argv:
-        if "--from-per-image" not in sys.argv:
-            rtn_per_image()
-        print(rtn_summary().to_string(index=False))
-    else:
-        main()
+    method = "rtn" if "--rtn" in sys.argv else "eval"
+    if "--from-per-image" not in sys.argv:
+        rtn_per_image() if method == "rtn" else main()
+    print(summary(method).to_string(index=False))

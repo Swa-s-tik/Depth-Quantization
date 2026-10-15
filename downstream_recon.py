@@ -11,26 +11,29 @@ absolute reconstruction error cancels.
 
 The FP16 baseline is read from the cache; quantized models are uniform,
 head-protected and the S2Q allocations of results/<model>_s2q_alloc.json.
-Output: results/downstream_recon.csv
-Command: python downstream_recon.py
+Outputs results/per_image/downstream_recon.csv and results/downstream_recon.csv.
+Commands: python downstream_recon.py                   (GPU)
+          python downstream_recon.py --from-per-image  (aggregate only, CPU)
 """
 import json
+import sys
+
 import numpy as np
 import pandas as pd
 import torch
 from scipy.spatial import cKDTree
 from scipy import ndimage
 
-from common import CACHE_ROOT, RESULTS, load_config, seed_everything
-
-CFG = load_config("downstream_recon")
+from common import CACHE_ROOT, PER_IMAGE, RESULTS, load_config, seed_everything
 from data.loaders import build
 from models.registry import load_model, infer_depth
 from align import scale_shift_align
 from score.pointcloud import backproject
 from predict import load_cached_pred
 from quant.fakequant import quantize_per_layer_, _QUANTIZABLE
-from stats import cliffs_delta
+from stats import cliffs_delta, finite_pairs
+
+CFG = load_config("downstream_recon")
 
 CACHE = CACHE_ROOT
 MODEL = CFG["model"]
@@ -60,25 +63,38 @@ def recon_metrics(pred_depth, s, md, xd):
     return {"chamfer": chamfer, "recon_f": f}
 
 
+METRICS = ["chamfer", "recon_f"]
+
+
 def eval_cfg(name, bmap, samples, md, xd, fp16):
     model, proc, _ = load_model(MODEL, dtype=torch.float16)
     if bmap is not None:
         quantize_per_layer_(model, bmap, per_channel=True, default_bits=16)
-    acc = {"chamfer": [], "recon_f": []}
+    rows = []
     for s in samples:
         raw = infer_depth(model, proc, s.rgb, out_hw=s.gt_depth.shape)
         r = recon_metrics(raw, s, md, xd)
         if r and s.id in fp16 and fp16[s.id]:
-            for k in acc:
-                acc[k].append((r[k], fp16[s.id][k]))
+            rows.append({"config": name, "image_id": s.id, **{f"q_{k}": r[k] for k in METRICS},
+                         **{f"fp16_{k}": fp16[s.id][k] for k in METRICS}})
     del model; torch.cuda.empty_cache()
-    out = {"config": name}
-    for k in acc:
-        if acc[k]:
-            q = np.array([x[0] for x in acc[k]]); fv = np.array([x[1] for x in acc[k]])
-            out[f"{k}_delta"] = round(float((q - fv).mean()), 4)
-            worse_hi = k == "chamfer"     # chamfer higher=worse; recon_f higher=better
-            out[f"{k}_cliff"] = round(cliffs_delta(q, fv) if worse_hi else cliffs_delta(fv, q), 3)
+    return rows
+
+
+def summarize():
+    df = pd.read_csv(PER_IMAGE / "downstream_recon.csv", float_precision="round_trip")
+    rows = []
+    for name, g in df.groupby("config", sort=False):
+        out = {"config": name}
+        for k in METRICS:
+            q, fv = finite_pairs(g, k)
+            if len(q):
+                out[f"{k}_delta"] = round(float((q - fv).mean()), 4)
+                worse_hi = k == "chamfer"     # chamfer higher=worse; recon_f higher=better
+                out[f"{k}_cliff"] = round(cliffs_delta(q, fv) if worse_hi else cliffs_delta(fv, q), 3)
+        rows.append(out)
+    out = pd.DataFrame(rows)
+    out.to_csv(RESULTS / "downstream_recon.csv", index=False)
     return out
 
 
@@ -99,19 +115,20 @@ def main():
     layers = [n for n, m in model.named_modules() if isinstance(m, _QUANTIZABLE)]
     del model; torch.cuda.empty_cache()
 
-    rows = []
+    configs = []
     for b in CFG["bits"]:
-        rows.append(eval_cfg(f"uniform@{b}", {l: b for l in layers}, samples, md, xd, fp16)); print(rows[-1])
-        rows.append(eval_cfg(f"headprot@{b}", {l: b for l in layers if "head." not in l}, samples, md, xd, fp16)); print(rows[-1])
-        pd.DataFrame(rows).to_csv(RESULTS / "downstream_recon.csv", index=False)
+        configs += [(f"uniform@{b}", {l: b for l in layers}),
+                    (f"headprot@{b}", {l: b for l in layers if "head." not in l})]
     # S2Q allocations (allocate.py)
-    ap = RESULTS / f"{MODEL}_s2q_alloc.json"
-    if ap.exists():
-        for abk, bmap in json.loads(ap.read_text()).items():
-            rows.append(eval_cfg(f"s2q@{abk}", bmap, samples, md, xd, fp16)); print(rows[-1])
-    pd.DataFrame(rows).to_csv(RESULTS / "downstream_recon.csv", index=False)
-    print("wrote results/downstream_recon.csv")
+    configs += [(f"s2q@{abk}", bmap) for abk, bmap in
+                json.loads((RESULTS / f"{MODEL}_s2q_alloc.json").read_text()).items()]
+    per_img = []
+    PER_IMAGE.mkdir(parents=True, exist_ok=True)
+    for name, bmap in configs:
+        per_img += eval_cfg(name, bmap, samples, md, xd, fp16)
+        pd.DataFrame(per_img).to_csv(PER_IMAGE / "downstream_recon.csv", index=False)
+    return summarize()
 
 
 if __name__ == "__main__":
-    main()
+    print((summarize() if "--from-per-image" in sys.argv else main()).to_string(index=False))

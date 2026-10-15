@@ -3,24 +3,26 @@ The per-layer sensitivities and the resulting S2Q bit allocation are fit on iBim
 Here we take that fixed allocation (~6-bit average, unchanged) and evaluate it on
 DIODE indoors, against uniform six-bit and head-protected six-bit. If S2Q still
 recovers boundaries on DIODE, the allocation generalizes beyond its calibration set.
-Output: results/s2q_diode_transfer.csv.
-Command: python s2q_diode_transfer.py
+Outputs results/per_image/s2q_diode_transfer.csv and results/s2q_diode_transfer.csv.
+Commands: python s2q_diode_transfer.py                   (GPU)
+          python s2q_diode_transfer.py --from-per-image  (aggregate only, CPU)
 """
 import json
-import numpy as np
+import sys
+
+import pandas as pd
 import torch
 
-from common import CACHE_ROOT, RESULTS, load_config, seed_everything
-
-CFG = load_config("s2q_diode_transfer")
+from common import CACHE_ROOT, PER_IMAGE, RESULTS, load_config, seed_everything
 from data.loaders import build
 from models.registry import load_model, infer_depth
 from align import scale_shift_align
 from predict import load_cached_pred
-from quant.fakequant import quantize_per_layer_, quantize_model_, _QUANTIZABLE
+from quant.fakequant import quantize_per_layer_, quantize_model_
 import score.boundary as B
-from stats import cliffs_delta
+from stats import cliffs_delta, finite_pairs
 
+CFG = load_config("s2q_diode_transfer")
 CACHE = CACHE_ROOT
 MODEL = CFG["model"]
 SUBSET = CFG["subset"]
@@ -31,9 +33,11 @@ def diode_samples():
     return [s for s in gen() if s.gt_edges is not None], info["min_depth"], info["max_depth"]
 
 
+METRICS = ["dbe_com", "edge_width"]
+
+
 def boundary_scores(model, proc, samples, fp16, md, xd):
-    acc = {"dbe_com": [], "edge_width": []}
-    base = {k: [] for k in acc}
+    rows = []
     for s in samples:
         raw = infer_depth(model, proc, s.rgb, out_hw=s.gt_depth.shape)
         a, _, _ = scale_shift_align(raw, s.gt_depth, s.valid_mask, mode="ss",
@@ -42,10 +46,22 @@ def boundary_scores(model, proc, samples, fp16, md, xd):
             continue
         vals = {"dbe_com": B.dbe(a, s.gt_edges, s.valid_mask)[1],
                 "edge_width": B.edge_sharpness(a, s.gt_edges, s.valid_mask, k=2)[1]}
-        for k, v in vals.items():
-            if np.isfinite(v) and np.isfinite(fp16[s.id][k]):
-                acc[k].append(v); base[k].append(fp16[s.id][k])
-    return acc, base
+        rows.append({"image_id": s.id, **{f"q_{k}": v for k, v in vals.items()},
+                     **{f"fp16_{k}": fp16[s.id][k] for k in METRICS}})
+    return rows
+
+
+def summarize():
+    df = pd.read_csv(PER_IMAGE / "s2q_diode_transfer.csv", float_precision="round_trip")
+    rows = []
+    for name, g in df.groupby("config", sort=False):
+        r = {"config": name, "n_img": len(finite_pairs(g, "dbe_com")[0])}
+        for k in METRICS:
+            r[f"{k}_cliff"] = round(cliffs_delta(*finite_pairs(g, k)), 3)
+        rows.append(r)
+    out = pd.DataFrame(rows)
+    out.to_csv(RESULTS / "s2q_diode_transfer.csv", index=False)
+    return out
 
 
 def main():
@@ -69,7 +85,7 @@ def main():
     s2q_bits = alloc[k6]
     print(f"using S2Q allocation at avg-bit key {k6} ({len(s2q_bits)} layers)")
 
-    rows = []
+    per_img = []
     for name in ["uniform6", "headprot6", "s2q"]:   # uniform / head-protected at 6 bits
         model, proc, _ = load_model(MODEL, dtype=torch.float16)
         if name == "uniform6":
@@ -78,16 +94,12 @@ def main():
             quantize_model_(model, 6, per_channel=True, extra_filters=[r"^(?!.*head\.).*"])  # all but head
         else:
             quantize_per_layer_(model, s2q_bits, per_channel=True, default_bits=16)
-        acc, base = boundary_scores(model, proc, samples, fp16, md, xd)
+        per_img += [{"config": name, **r} for r in boundary_scores(model, proc, samples, fp16, md, xd)]
         del model; torch.cuda.empty_cache()
-        r = {"config": name, "n_img": len(acc["dbe_com"])}
-        for k in acc:
-            r[f"{k}_cliff"] = round(cliffs_delta(np.array(acc[k]), np.array(base[k])), 3)
-        rows.append(r); print(r)
-    import pandas as pd
-    pd.DataFrame(rows).to_csv(RESULTS / "s2q_diode_transfer.csv", index=False)
-    print("wrote results/s2q_diode_transfer.csv")
+        PER_IMAGE.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(per_img).to_csv(PER_IMAGE / "s2q_diode_transfer.csv", index=False)
+    return summarize()
 
 
 if __name__ == "__main__":
-    main()
+    print((summarize() if "--from-per-image" in sys.argv else main()).to_string(index=False))
