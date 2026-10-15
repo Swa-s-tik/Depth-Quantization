@@ -1,0 +1,7 @@
+model,metric,eps=3%,eps=5%,eps=7%,eps=10%,passes at eps >=
+Base,AbsRel,no,yes,yes,yes,3.3%
+Base,RMSE,yes,yes,yes,yes,2.4%
+Base,delta1,yes,yes,yes,yes,0.1%
+Large,AbsRel,no,no,no,yes,7.3%
+Large,RMSE,no,no,yes,yes,6.2%
+Large,delta1,yes,yes,yes,yes,0.3%

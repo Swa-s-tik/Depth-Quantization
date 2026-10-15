@@ -1,0 +1,7 @@
+setting,component,AbsRel,DBE-comp,edge-w,flying
+"Large, 6-bit",encoder,0.01,-0.01,0.00,-0.01
+"Large, 6-bit",neck,-0.01,0.01,0.01,0.02
+"Large, 6-bit",head,0.07,0.33,0.31,0.74
+"Base, 4-bit",encoder,0.51,0.38,0.31,0.16
+"Base, 4-bit",neck,0.05,0.11,0.05,0.06
+"Base, 4-bit",head,0.46,0.37,0.25,0.70

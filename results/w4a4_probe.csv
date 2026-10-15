@@ -1,0 +1,7 @@
+config,dbe_com_cliff,flying_frac_cliff,absrel_cliff
+"W6 headprot, A16",0.006,0.014,0.015
+"W6 headprot, A8",0.625,0.487,0.618
+"W6 headprot, A4",-0.003,-0.546,0.978
+"W6 uniform, A16",0.378,0.746,0.071
+"W6 uniform, A4",0.045,-0.548,0.978
+"W16 (weights fp16), A4",-0.004,-0.534,0.979

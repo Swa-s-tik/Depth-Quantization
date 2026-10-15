@@ -1,0 +1,11 @@
+model,config,AbsRel,DBE-comp,flying
+DAv2-base,FP16,0.0384,14.70,0.610
+DAv2-base,uniform W6,0.0392,17.22,0.675
+DAv2-base,head-protected W6 (iso-mem),0.0389,14.35,0.609
+DAv2-base,uniform W4,0.0775,38.73,0.733
+DAv2-base,head-protected W4 (iso-mem),0.0665,28.11,0.659
+DAv2-large,FP16,0.0348,13.93,0.622
+DAv2-large,uniform W6,0.0367,30.22,0.826
+DAv2-large,head-protected W6 (iso-mem),0.0349,14.31,0.626
+DAv2-large,uniform W4,0.0438,9.42,0.489
+DAv2-large,head-protected W4 (iso-mem),0.0427,10.70,0.573

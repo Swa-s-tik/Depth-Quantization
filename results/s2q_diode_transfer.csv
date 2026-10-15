@@ -1,0 +1,4 @@
+config,n_img,dbe_com_cliff,edge_width_cliff
+uniform6,80,0.206,0.094
+headprot6,80,0.018,0.005
+s2q,80,0.057,-0.005

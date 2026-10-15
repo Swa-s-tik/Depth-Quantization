@@ -1,0 +1,4 @@
+method,w_bits,n_layers,absrel_cliff,absrel_mean,dbe_com_cliff,dbe_com_mean,edge_width_cliff,edge_width_mean,flying_cliff,flying_mean
+gptq,8,175,0.01,0.0979,0.003,13.0742,-0.022,2.4347,-0.081,0.6114
+gptq,6,175,0.003,0.1028,0.02,14.2583,0.02,2.4863,0.137,0.6556
+gptq,4,175,0.151,0.0947,-0.006,10.6157,-0.148,2.173,-0.301,0.566

@@ -1,0 +1,5 @@
+model,w_bits,n,fp16_flying,quant_flying,flying_cliff
+dav2_base,6,80,0.629,0.619,-0.037
+dav2_base,4,80,0.629,0.507,-0.402
+dav2_large,6,80,0.637,0.649,0.038
+dav2_large,4,80,0.637,0.596,-0.149

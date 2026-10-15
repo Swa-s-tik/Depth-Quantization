@@ -1,0 +1,5 @@
+config,Chamfer,reconstruction-F
+uniform W6,0.356,0.431
+head-protected W6,0.010,0.002
+S2Q (5.0-bit avg),0.036,0.010
+S2Q (6.0-bit avg),0.030,0.017

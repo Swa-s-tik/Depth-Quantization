@@ -1,0 +1,7 @@
+model,config,params_M,head_params_M,MB,overhead_vs_W6_pct,encoder_share_pct,neck_share_pct,head_share_pct
+dav2_base,FP16,95.98,0.092,191.95,166.667,88.97,10.94,0.1
+dav2_base,uniform W6,95.98,0.092,71.98,0.0,88.97,10.94,0.1
+dav2_base,head-protected W6,95.98,0.092,72.1,0.16,88.97,10.94,0.1
+dav2_large,FP16,331.43,0.332,662.86,166.667,91.3,8.6,0.1
+dav2_large,uniform W6,331.43,0.332,248.57,0.0,91.3,8.6,0.1
+dav2_large,head-protected W6,331.43,0.332,248.99,0.167,91.3,8.6,0.1

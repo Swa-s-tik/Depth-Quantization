@@ -1,0 +1,13 @@
+model,W,boundary (flying),max aggregate,DI
+DAv2-base,8,0.16,0.01,0.15
+DAv2-base,7,0.39,0.03,0.36
+DAv2-base,6,0.28,0.01,0.27
+DAv2-base,5,-0.83,0.34,-1.17
+DAv2-base,4,0.52,0.64,-0.12
+DAv2-base,3,-0.46,0.94,-1.40
+DAv2-large,8,-0.15,0.02,-0.17
+DAv2-large,7,0.37,0.01,0.36
+DAv2-large,6,0.76,0.09,0.67
+DAv2-large,5,-0.85,0.29,-1.14
+DAv2-large,4,-0.54,0.24,-0.78
+DAv2-large,3,-0.51,0.95,-1.45

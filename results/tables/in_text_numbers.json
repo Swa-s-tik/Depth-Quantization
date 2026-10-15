@@ -1,0 +1,302 @@
+{
+ "nyu_fp16_absrel/dav2_small": {
+  "value": "0.062",
+  "paper": "0.062",
+  "where": "Sec. 4.3",
+  "source": "results/gate_nyu.csv"
+ },
+ "nyu_fp16_absrel/dav2_base": {
+  "value": "0.057",
+  "paper": "0.057",
+  "where": "Sec. 4.3",
+  "source": "results/gate_nyu.csv"
+ },
+ "nyu_fp16_absrel/dav2_large": {
+  "value": "0.055",
+  "paper": "0.055",
+  "where": "Sec. 4.3",
+  "source": "results/gate_nyu.csv"
+ },
+ "nyu_offset_vs_published_pct": {
+  "value": "16 to 22",
+  "paper": "16 to 22",
+  "where": "Sec. 4.3",
+  "source": "results/gate_nyu.csv"
+ },
+ "abstract/max_flying_cliff": {
+  "value": "0.76",
+  "paper": "0.76",
+  "where": "Abstract",
+  "source": "results/phase3_bitsweep_summary.csv"
+ },
+ "abstract/max_abs_aggregate_cliff_large_w6": {
+  "value": "0.09",
+  "paper": "0.09",
+  "where": "Abstract",
+  "source": "results/multimetric.csv"
+ },
+ "sec13/padj_max_boundary_w6": {
+  "value": "2.4e-09",
+  "paper": "< 1e-8",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep_summary.csv"
+ },
+ "sec13/large_w6_flying_frac_cliff_90ci_paired": {
+  "value": "[0.69, 0.83]",
+  "paper": "[0.68, 0.82]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_flying_frac_cliff_90ci_unpaired": {
+  "value": "[0.67, 0.84]",
+  "paper": "[0.68, 0.82]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_dbe_com_cliff_90ci_paired": {
+  "value": "[0.28, 0.43]",
+  "paper": "[0.19, 0.49]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_dbe_com_cliff_90ci_unpaired": {
+  "value": "[0.21, 0.48]",
+  "paper": "[0.19, 0.49]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_edge_width_cliff_90ci_paired": {
+  "value": "[0.28, 0.38]",
+  "paper": "[0.17, 0.46]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_edge_width_cliff_90ci_unpaired": {
+  "value": "[0.18, 0.45]",
+  "paper": "[0.17, 0.46]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_absrel_cliff_90ci_paired": {
+  "value": "[0.05, 0.10]",
+  "paper": "[-0.05, 0.19]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/large_w6_absrel_cliff_90ci_unpaired": {
+  "value": "[-0.06, 0.21]",
+  "paper": "[-0.05, 0.19]",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec5.2/base_w7_flying_frac_cliff_95ci_paired": {
+  "value": "[0.32, 0.48]",
+  "paper": "[0.32, 0.49]",
+  "where": "Sec. 5.2",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec5.2/base_w6_flying_frac_cliff_95ci_paired": {
+  "value": "[0.22, 0.36]",
+  "paper": "[0.22, 0.35]",
+  "where": "Sec. 5.2",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec5.2/base_w7_dbe_com_cliff_95ci_paired": {
+  "value": "[0.10, 0.22]",
+  "paper": "[0.11, 0.22]",
+  "where": "Sec. 5.2",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec5.2/base_w6_dbe_com_cliff_95ci_paired": {
+  "value": "[0.07, 0.19]",
+  "paper": "[0.07, 0.19]",
+  "where": "Sec. 5.2",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/interior_vs_boundary_spearman/dav2_large": {
+  "value": "0.15 [-0.07, 0.36], n=85",
+  "paper": "0.15 [-0.06, 0.37], n=85",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec13/interior_vs_boundary_spearman/dav2_base": {
+  "value": "0.59 [0.41, 0.73], n=85",
+  "paper": "0.59 [0.41, 0.73], n=85",
+  "where": "Sec. 13",
+  "source": "results/phase3_bitsweep.csv"
+ },
+ "sec6.1/large_fp16_interior_absrel": {
+  "value": "0.031",
+  "paper": "0.031",
+  "where": "Sec. 6.1",
+  "source": "results/bands.csv"
+ },
+ "sec6.1/large_fp16_0-1px_absrel": {
+  "value": "0.138",
+  "paper": "0.138",
+  "where": "Sec. 6.1",
+  "source": "results/bands.csv"
+ },
+ "sec6.2/contour_f_t2_large_w6_cliff": {
+  "value": "0.006 (p=6.0e-02)",
+  "paper": "0.006",
+  "where": "Sec. 6.2",
+  "source": "results/boundary_f_sweep_t2.csv"
+ },
+ "sec6.2/contour_f_t1_large_w6_cliff": {
+  "value": "0.018 (p=3.6e-03)",
+  "paper": "0.018",
+  "where": "Sec. 6.2",
+  "source": "results/boundary_f_sweep_t1.csv"
+ },
+ "sec6.2/contour_f_t1_large_w4_cliff": {
+  "value": "0.035 (p=1.2e-03)",
+  "paper": "0.035",
+  "where": "Sec. 6.2",
+  "source": "results/boundary_f_sweep_t1.csv"
+ },
+ "sec6.2/contour_f_t1_large_w3_cliff": {
+  "value": "0.985 (p=1.2e-15)",
+  "paper": "0.99",
+  "where": "Sec. 6.2",
+  "source": "results/boundary_f_sweep_t1.csv"
+ },
+ "sec11.1/dpt_large_w6_absrel_cliff": {
+  "value": "0.005",
+  "paper": "0.005",
+  "where": "Sec. 11.1",
+  "source": "results/phase3_dpt_summary.csv"
+ },
+ "sec11.1/dpt_large_w6_flying_cliff": {
+  "value": "0.12",
+  "paper": "0.12",
+  "where": "Sec. 11.1",
+  "source": "results/phase3_dpt_summary.csv"
+ },
+ "sec11.1/dpt_hybrid_w6_absrel_cliff": {
+  "value": "0.013",
+  "paper": "0.013",
+  "where": "Sec. 11.1",
+  "source": "results/phase3_dpt_summary.csv"
+ },
+ "sec11.1/dpt_hybrid_w6_flying_cliff": {
+  "value": "0.13",
+  "paper": "0.13",
+  "where": "Sec. 11.1",
+  "source": "results/phase3_dpt_summary.csv"
+ },
+ "sec11.2/nyu_dav2_base_w6_absrel_delta": {
+  "value": "0.0003",
+  "paper": "0.0003",
+  "where": "Sec. 11.2",
+  "source": "results/phase3_nyu_bitsweep_summary.csv"
+ },
+ "sec11.2/nyu_dav2_small_w6_absrel_delta": {
+  "value": "0.0010",
+  "paper": "0.001",
+  "where": "Sec. 11.2",
+  "source": "results/phase3_nyu_bitsweep_summary.csv"
+ },
+ "sec11.2/diode_dav2_large_w6_dbe_com_padj": {
+  "value": "1.4e-13",
+  "paper": "p < 1e-12",
+  "where": "Sec. 11.2",
+  "source": "results/phase6_diode_bitsweep_summary.csv"
+ },
+ "sec11.2/diode_dav2_large_w6_edge_width_padj": {
+  "value": "3.1e-14",
+  "paper": "p < 1e-13",
+  "where": "Sec. 11.2",
+  "source": "results/phase6_diode_bitsweep_summary.csv"
+ },
+ "sec11.2/diode_dav2_base_w6_dbe_com_padj": {
+  "value": "2.2e-08",
+  "paper": "p < 1e-7",
+  "where": "Sec. 11.2",
+  "source": "results/phase6_diode_bitsweep_summary.csv"
+ },
+ "sec10.1/top_boundary_layer_large": {
+  "value": "head.conv2: mean DBE-completeness increase 0.92 px",
+  "paper": "penultimate head convolution, 0.92 (printed as Cliff's delta)",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dav2_large_w4.csv"
+ },
+ "sec10.1/boundary_vs_aggregate_sensitivity_corr/dav2_large": {
+  "value": "Pearson -0.68, Spearman -0.16",
+  "paper": "-0.68 (printed as Spearman)",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dav2_large_w4.csv"
+ },
+ "sec10.1/boundary_vs_aggregate_sensitivity_corr/dpt_hybrid": {
+  "value": "Pearson -0.93, Spearman -0.02",
+  "paper": "-0.93 (printed as Spearman)",
+  "where": "Sec. 10.1",
+  "source": "results/sensitivity_dpt_hybrid_w4.csv"
+ },
+ "sec10.4/zoedepth_boundary_sensitivity_outside_head_pct": {
+  "value": "93",
+  "paper": "93",
+  "where": "Sec. 10.4",
+  "source": "results/sensitivity_zoedepth_w4.csv"
+ },
+ "sec10.3/s2q_5bit_vs_headprot_w6_MB": {
+  "value": "207 vs 249 (17% less)",
+  "paper": "207 vs 249 (17 percent)",
+  "where": "Sec. 10.3",
+  "source": "results/s2q_pareto_dav2_large.csv"
+ },
+ "sec9/encoder_share_of_quantizable_weights_pct": {
+  "value": "89.0 to 91.3",
+  "paper": "89 to 91",
+  "where": "Sec. 9",
+  "source": "results/mitigation_memory.csv"
+ },
+ "sec9/neck_share_of_quantizable_weights_pct": {
+  "value": "8.6 to 10.9",
+  "paper": "9 to 11",
+  "where": "Sec. 9",
+  "source": "results/mitigation_memory.csv"
+ },
+ "sec9/head_share_of_quantizable_weights_pct": {
+  "value": "0.1 to 0.1",
+  "paper": "roughly zero",
+  "where": "Sec. 9",
+  "source": "results/mitigation_memory.csv"
+ },
+ "sec14.3/flying_cliff_range_over_k": {
+  "value": "0.70 to 0.76",
+  "paper": "0.70 to 0.76",
+  "where": "Sec. 14.3",
+  "source": "results/flying_sensitivity.csv"
+ },
+ "sec14.3/flying_cliff_range_over_k_and_tau": {
+  "value": "0.66 to 0.76",
+  "paper": "0.66 to 0.76",
+  "where": "Sec. 14.3",
+  "source": "results/flying_sensitivity.csv"
+ },
+ "sec14.3/large_fp16_flying_frac_k3": {
+  "value": "0.62",
+  "paper": "0.62",
+  "where": "Sec. 3.8, 14.3",
+  "source": "results/flying_sensitivity.csv"
+ },
+ "appA/mean_eligible_px_k3": {
+  "value": "12,163",
+  "paper": "12,000",
+  "where": "Appendix A",
+  "source": "results/flying_sensitivity.csv"
+ },
+ "appA/mean_eligible_px_k2": {
+  "value": "8,507",
+  "paper": "8,500",
+  "where": "Appendix A",
+  "source": "results/flying_sensitivity.csv"
+ },
+ "sec14.3/mean_flying_px_k3": {
+  "value": "7,689",
+  "paper": "7,700",
+  "where": "Sec. 14.3",
+  "source": "results/flying_sensitivity.csv"
+ }
+}

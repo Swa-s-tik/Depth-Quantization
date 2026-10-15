@@ -1,0 +1,10 @@
+scheme,W,AbsRel,DBE-c,edge-w,flying
+per-channel symmetric,8,0.01,-0.03,-0.04,-0.15
+per-channel symmetric,6,0.07,0.35,0.32,0.76
+per-channel symmetric,4,0.24,-0.04,-0.16,-0.54
+per-tensor symmetric,8,0.01,-0.03,-0.03,-0.14
+per-tensor symmetric,6,0.17,0.36,0.35,0.72
+per-tensor symmetric,4,0.95,0.28,0.45,-0.52
+per-channel asymmetric,8,-0.00,-0.01,-0.01,-0.01
+per-channel asymmetric,6,0.04,0.18,0.18,0.49
+per-channel asymmetric,4,0.32,-0.20,-0.35,-0.77

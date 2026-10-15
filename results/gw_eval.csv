@@ -1,0 +1,4 @@
+scheme,n_layers,n_img,absrel_cliff,dbe_com_cliff,edge_width_cliff,flying_cliff
+gw4_g128,177,100,0.177,-0.111,-0.247,-0.733
+gw4_g64,177,100,0.105,-0.043,-0.171,-0.56
+gw3_g128,177,100,0.688,0.07,0.118,0.176

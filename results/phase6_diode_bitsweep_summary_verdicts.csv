@@ -1,0 +1,11 @@
+dataset,model,precision,w_bits,agg_equivalent,tost_ci,eps,bnd_significant,bnd_hits
+diode,dav2_base,w4,4,False,"(0.02185, 0.04387)",0.00342,True,['dbe_acc']
+diode,dav2_base,w5,5,False,"(0.00164, 0.00814)",0.00342,False,[]
+diode,dav2_base,w6,6,True,"(0.00102, 0.00293)",0.00342,False,[]
+diode,dav2_base,w7,7,True,"(-0.00288, -0.0003)",0.00342,False,[]
+diode,dav2_base,w8,8,True,"(-0.00109, 0.00027)",0.00342,False,[]
+diode,dav2_large,w4,4,False,"(0.00615, 0.01659)",0.00308,False,[]
+diode,dav2_large,w5,5,False,"(0.00112, 0.00484)",0.00308,False,[]
+diode,dav2_large,w6,6,True,"(0.00092, 0.00217)",0.00308,False,[]
+diode,dav2_large,w7,7,True,"(-0.00074, -8e-05)",0.00308,False,[]
+diode,dav2_large,w8,8,True,"(1e-05, 0.00021)",0.00308,False,[]

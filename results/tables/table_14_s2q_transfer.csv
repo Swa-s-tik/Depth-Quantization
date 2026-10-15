@@ -1,0 +1,4 @@
+config (six-bit average),DBE-comp,edge-width
+uniform,0.206,0.094
+head-protected,0.018,0.005
+S2Q (allocation fit on iBims-1),0.057,-0.005

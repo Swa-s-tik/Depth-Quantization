@@ -1,0 +1,7 @@
+model,metric,delta,90% CI,eps,TOST equiv.
+DAv2-base,AbsRel,0.0007,"[0.0002, 0.0013]",0.0019,yes
+DAv2-base,RMSE,0.0025,"[-0.0004, 0.0054]",0.0112,yes
+DAv2-base,delta1,-0.0007,"[-0.0014, -0.0000]",0.0492,yes
+DAv2-large,AbsRel,0.0020,"[0.0015, 0.0025]",0.0017,no
+DAv2-large,RMSE,0.0097,"[0.0065, 0.0131]",0.0105,no
+DAv2-large,delta1,-0.0020,"[-0.0032, -0.0010]",0.0493,yes

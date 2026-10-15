@@ -1,0 +1,5 @@
+method,AbsRel delta,DBE-comp,flying
+uniform,0.0024,0.378,0.746
+aggregate-guided,0.0011,0.080,0.308
+head-protection,0.0003,0.006,0.014
+S2Q (ours),0.0008,0.026,-0.018

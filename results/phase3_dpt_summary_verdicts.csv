@@ -1,0 +1,9 @@
+dataset,model,precision,w_bits,agg_equivalent,tost_ci,eps,bnd_significant,bnd_hits
+ibims,dpt_hybrid,w3,3,False,"(0.09271, 0.11408)",0.00362,True,"['dbe_acc', 'boundary_absrel_k3']"
+ibims,dpt_hybrid,w4,4,False,"(0.02067, 0.02806)",0.00362,True,"['dbe_acc', 'boundary_absrel_k3']"
+ibims,dpt_hybrid,w6,6,True,"(-0.00048, 0.00075)",0.00362,False,[]
+ibims,dpt_hybrid,w8,8,True,"(2e-05, 0.00042)",0.00362,False,[]
+ibims,dpt_large,w3,3,False,"(0.15653, 0.18767)",0.00342,True,"['dbe_acc', 'dbe_com', 'boundary_absrel_k3', 'edge_width', 'edge_sharpness']"
+ibims,dpt_large,w4,4,False,"(0.00754, 0.01324)",0.00342,True,['dbe_acc']
+ibims,dpt_large,w6,6,True,"(-0.00069, 0.00031)",0.00342,False,[]
+ibims,dpt_large,w8,8,True,"(-6e-05, 0.00012)",0.00342,False,[]

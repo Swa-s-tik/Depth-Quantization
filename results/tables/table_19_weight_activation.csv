@@ -1,0 +1,4 @@
+configuration,AbsRel,DBE-comp,flying
+weight-only W6 (uniform),0.071,0.378,0.746
+W6 head-protected + 8-bit activations,0.618,0.625,0.487
+W6 uniform + 4-bit activations,0.978,0.045,-0.548

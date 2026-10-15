@@ -1,0 +1,4 @@
+model,n,absrel,pub_absrel,absrel_rel_err,d1,pub_d1,d1_err,PASS
+dav2_small,654,0.0617,0.053,0.164,0.9557,0.973,0.0173,False
+dav2_base,654,0.0573,0.049,0.17,0.9594,0.976,0.0166,False
+dav2_large,654,0.0547,0.045,0.216,0.9609,0.979,0.0181,False

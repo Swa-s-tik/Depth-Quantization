@@ -1,0 +1,9 @@
+dataset,model,precision,w_bits,agg_equivalent,tost_ci,eps,bnd_significant,bnd_hits
+nyu,dav2_base,w3,3,False,"(0.16604, 0.18494)",0.00284,False,[]
+nyu,dav2_base,w4,4,False,"(0.03675, 0.04465)",0.00284,False,[]
+nyu,dav2_base,w6,6,True,"(-7e-05, 0.0006)",0.00284,False,[]
+nyu,dav2_base,w8,8,True,"(-3e-05, 0.00017)",0.00284,False,[]
+nyu,dav2_small,w3,3,False,"(0.18277, 0.20498)",0.00306,False,[]
+nyu,dav2_small,w4,4,False,"(0.03237, 0.04048)",0.00306,False,[]
+nyu,dav2_small,w6,6,True,"(0.00042, 0.00158)",0.00306,False,[]
+nyu,dav2_small,w8,8,True,"(-2e-05, 0.00028)",0.00306,False,[]

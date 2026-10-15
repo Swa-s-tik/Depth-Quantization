@@ -1,0 +1,15 @@
+model,metric,equivalent_at_3pct,equivalent_at_5pct,equivalent_at_7pct,equivalent_at_10pct,passes_at_pct
+dav2_base,absrel,False,True,True,True,3.331
+dav2_base,sqrel,False,False,False,True,7.761
+dav2_base,rmse,True,True,True,True,2.419
+dav2_base,rmse_log,True,True,True,True,1.93
+dav2_base,d1,True,True,True,True,0.147
+dav2_base,d2,True,True,True,True,0.013
+dav2_base,d3,True,True,True,True,0.005
+dav2_large,absrel,False,False,False,True,7.268
+dav2_large,sqrel,False,True,True,True,4.598
+dav2_large,rmse,False,False,True,True,6.237
+dav2_large,rmse_log,False,True,True,True,4.444
+dav2_large,d1,True,True,True,True,0.322
+dav2_large,d2,True,True,True,True,0.036
+dav2_large,d3,True,True,True,True,0.04

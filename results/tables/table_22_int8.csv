@@ -1,0 +1,9 @@
+model,metric,FP16,real INT8,Cliff's delta
+DAv2-Large,AbsRel,0.0347,0.0348,-0.002
+DAv2-Large,DBE-completeness,13.92,13.80,-0.015
+DAv2-Large,edge width,2.431,2.427,-0.002
+DAv2-Large,flying-pixel fraction,0.622,0.622,-0.006
+DAv2-Base,AbsRel,0.0384,0.0385,+0.007
+DAv2-Base,DBE-completeness,14.70,14.52,+0.002
+DAv2-Base,edge width,2.442,2.441,+0.002
+DAv2-Base,flying-pixel fraction,0.610,0.611,+0.010

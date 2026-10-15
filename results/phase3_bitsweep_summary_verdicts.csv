@@ -1,0 +1,19 @@
+dataset,model,precision,w_bits,agg_equivalent,tost_ci,eps,bnd_significant,bnd_hits
+ibims,dav2_base,w3,3,False,"(0.1817, 0.21164)",0.00192,True,"['dbe_acc', 'dbe_com', 'boundary_absrel_k3', 'edge_width', 'edge_sharpness']"
+ibims,dav2_base,w4,4,False,"(0.03533, 0.04303)",0.00192,True,"['dbe_acc', 'dbe_com', 'boundary_absrel_k3', 'edge_width', 'edge_sharpness', 'flying_frac']"
+ibims,dav2_base,w5,5,False,"(0.01091, 0.01375)",0.00192,True,"['dbe_acc', 'boundary_absrel_k3']"
+ibims,dav2_base,w6,6,True,"(0.00022, 0.00128)",0.00192,False,[]
+ibims,dav2_base,w7,7,True,"(-0.0004, 0.00034)",0.00192,True,['flying_frac']
+ibims,dav2_base,w8,8,True,"(-5e-05, 0.00031)",0.00192,False,[]
+ibims,dav2_large,w3,3,False,"(0.19496, 0.22652)",0.00174,True,"['dbe_acc', 'dbe_com', 'boundary_absrel_k3', 'edge_width', 'edge_sharpness']"
+ibims,dav2_large,w4,4,False,"(0.00743, 0.01088)",0.00174,False,[]
+ibims,dav2_large,w5,5,False,"(0.00787, 0.01021)",0.00174,True,['boundary_absrel_k3']
+ibims,dav2_large,w6,6,False,"(0.00147, 0.00253)",0.00174,True,"['dbe_com', 'flying_frac']"
+ibims,dav2_large,w7,7,True,"(0.00022, 0.00066)",0.00174,True,['flying_frac']
+ibims,dav2_large,w8,8,True,"(4e-05, 0.00021)",0.00174,False,[]
+ibims,dav2_small,w3,3,False,"(0.17633, 0.21164)",0.00226,True,"['dbe_acc', 'dbe_com', 'boundary_absrel_k3', 'edge_width', 'edge_sharpness']"
+ibims,dav2_small,w4,4,False,"(0.02528, 0.03371)",0.00226,True,"['dbe_com', 'edge_width', 'edge_sharpness']"
+ibims,dav2_small,w5,5,False,"(0.00257, 0.00555)",0.00226,False,[]
+ibims,dav2_small,w6,6,True,"(0.00044, 0.00165)",0.00226,False,[]
+ibims,dav2_small,w7,7,True,"(-0.00024, 0.00059)",0.00226,False,[]
+ibims,dav2_small,w8,8,True,"(-0.00023, 0.00017)",0.00226,False,[]

@@ -1,0 +1,4 @@
+model,uniform,head-protect,aggregate-guided,S2Q
+Depth Anything V2 Large,0.378,0.006,0.080,0.026
+DPT-Hybrid,0.017,-0.057,-0.050,-0.096
+ZoeDepth,0.014,-0.003,0.259,0.008

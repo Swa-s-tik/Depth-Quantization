@@ -1,0 +1,4 @@
+method,w_bits,n_img,absrel_cliff,absrel_mean,dbe_com_cliff,dbe_com_mean,edge_width_cliff,edge_width_mean,flying_cliff,flying_mean
+rtn,8,84,0.012,0.0967,-0.038,12.4613,-0.045,2.4011,-0.155,0.5966
+rtn,6,84,0.073,0.096,0.379,29.9941,0.344,3.3049,0.766,0.8242
+rtn,4,84,0.251,0.1117,-0.038,8.0678,-0.191,2.108,-0.591,0.4839
